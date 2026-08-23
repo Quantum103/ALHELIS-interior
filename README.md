@@ -37,7 +37,7 @@
    DB_HOST=postgres_db
    DB_PORT=5432
    DB_USER=alhelis
-   DB_PASSWORD=your_secure_password
+   DB_PASSWORD=password
    DB_NAME=alhelis
 
 3. Запустите все сервисы в фоновом режиме

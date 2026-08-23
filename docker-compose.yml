@@ -24,6 +24,7 @@ services:
       context: .
       dockerfile: auth-service/Dockerfile
     expose:
+      - "8082"
       - "50052"
     environment:
       DB_HOST: ${DB_HOST}
