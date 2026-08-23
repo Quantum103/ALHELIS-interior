@@ -28,5 +28,18 @@
 
 1. Склонируйте репозиторий и перейдите в папку проекта:
    ```bash
-   git clone <ссылка_на_ваш_репозиторий>
-   cd id-amelli
+   git clone https://github.com/Quantum103/ALHELIS-interior.git
+   cd ALHELIS-interior
+   
+
+2. Создайте файл `.env` в корне проекта:
+   ```env
+   DB_HOST=postgres_db
+   DB_PORT=5432
+   DB_USER=alhelis
+   DB_PASSWORD=your_secure_password
+   DB_NAME=alhelis
+
+3. Запустите все сервисы в фоновом режиме
+   ```bash
+   docker compose up --build -d
