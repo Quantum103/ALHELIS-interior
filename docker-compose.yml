@@ -1,15 +1,18 @@
+version: '3.8'
+
 services:
   postgres_db:
     image: postgres:15-alpine
+    container_name: postgres_db
     environment:
-      POSTGRES_USER: coffee_user
-      POSTGRES_PASSWORD: coffee_password
-      POSTGRES_DB: menu_db
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U coffee_user -d menu_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -23,11 +26,11 @@ services:
     expose:
       - "50052"
     environment:
-      DB_HOST: postgres_db
-      DB_PORT: "5432"
-      DB_USER: coffee_user
-      DB_PASSWORD: coffee_password
-      DB_NAME: menu_db
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
     depends_on:
       postgres_db:
         condition: service_healthy
@@ -41,11 +44,11 @@ services:
     expose:
       - "50051"
     environment:
-      DB_HOST: postgres_db
-      DB_PORT: "5432"
-      DB_USER: coffee_user
-      DB_PASSWORD: coffee_password
-      DB_NAME: menu_db
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
     depends_on:
       postgres_db:
         condition: service_healthy
@@ -60,7 +63,7 @@ services:
       - ./frontend:/usr/share/nginx/html:ro
       - ./gateway/nginx.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
-      - auth-service   # 👈 ВАЖНО: Nginx НЕ запустится, пока не поднимутся эти сервисы
+      - auth-service   
       - user-service
     networks:
       - app-network

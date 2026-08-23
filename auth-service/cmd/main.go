@@ -14,13 +14,8 @@ import (
 )
 
 func main() {
-	dbConfig := database.Config{
-		Host:     "postgres_db",
-		Port:     "5432",
-		User:     "coffee_user",
-		Password: "coffee_password",
-		DBName:   "menu_db",
-	}
+
+	dbConfig := database.LoadConfigFromEnv()
 
 	db, err := database.NewPostgresPool(dbConfig)
 	if err != nil {
@@ -37,7 +32,7 @@ func main() {
 	mux.HandleFunc("/api/auth/register", srv.HandleRegister) // Исправлено
 
 	go func() {
-		if err := http.ListenAndServe(":8080", mux); err != nil {
+		if err := http.ListenAndServe(":8082", mux); err != nil {
 			log.Fatalf("Ошибка HTTP сервера: %v", err)
 		}
 	}()

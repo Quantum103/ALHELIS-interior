@@ -3,7 +3,6 @@ package handlers
 import (
 	"auth-service/internal/models"
 	"encoding/json"
-	"log"
 	"net/http"
 
 	pb "amelli/proto"
@@ -62,17 +61,11 @@ func (s *Server) HandleRegister(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) HandleAuthPage(w http.ResponseWriter, r *http.Request) {
-	// 1. ДОБАВЛЕНО: Лог, чтобы увидеть запрос в консоли Docker
-	log.Println("🚀 ЗАПРОС ПОЛУЧЕН В GO: /auth")
-
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	// 2. ИСПРАВЛЕНО: Абсолютный путь, который мы проверили командой ls
 	filePath := "/app/frontend/auth.html"
-	log.Printf("📂 Пытаемся открыть файл: %s", filePath)
-
 	http.ServeFile(w, r, filePath)
 }
