@@ -1,63 +1,116 @@
 package handlers
 
 import (
-	"auth-service/internal/models"
+	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
+	"time"
 
 	pb "amelli/proto"
-
-	"github.com/jackc/pgx/v5/pgxpool"
+	"auth-service/internal/middleware"
+	"auth-service/internal/models"
+	"auth-service/internal/service"
 )
 
-func NewServer(db *pgxpool.Pool) *Server {
-	return &Server{DB: db}
+type AuthServiceInterface interface {
+	Register(ctx context.Context, req models.RegisterRequest) error
+	Login(ctx context.Context, req models.LoginRequest) (string, *models.UserResponse, error)
+	GetMe(ctx context.Context, id int64) (*models.UserResponse, error)
 }
 
 type Server struct {
 	pb.UnimplementedAlhelisServiceServer
-	DB *pgxpool.Pool
+	authService AuthServiceInterface
 }
 
-func (s *Server) HandleLogin(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	var req models.LoginRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, `{"error": "Неверный формат данных"}`, http.StatusBadRequest)
-		return
-	}
+func NewServer(authService AuthServiceInterface) *Server {
+	return &Server{authService: authService}
+}
 
-	response := map[string]interface{}{
-		"token": "temp_token_string",
-		"user":  map[string]string{"username": req.Username, "email": "test@test.com"},
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+func respondWithError(w http.ResponseWriter, code int, message string) {
+	w.WriteHeader(code)
+	json.NewEncoder(w).Encode(map[string]string{"error": message})
 }
 
 func (s *Server) HandleRegister(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
 	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		respondWithError(w, http.StatusMethodNotAllowed, "Method not allowed")
 		return
 	}
 
 	var req models.RegisterRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, `{"error": "Неверный формат данных"}`, http.StatusBadRequest)
+		respondWithError(w, http.StatusBadRequest, "Неверный формат данных")
 		return
 	}
 
-	response := map[string]string{
-		"message": "Аккаунт успешно создан",
+	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
+	defer cancel()
+
+	if err := s.authService.Register(ctx, req); err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Ошибка при создании пользователя")
+		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(response)
+	json.NewEncoder(w).Encode(map[string]string{"message": "Аккаунт успешно создан"})
+}
+
+func (s *Server) HandleLogin(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	if r.Method != http.MethodPost {
+		respondWithError(w, http.StatusMethodNotAllowed, "Method not allowed")
+		return
+	}
+
+	var req models.LoginRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		respondWithError(w, http.StatusBadRequest, "Неверный формат данных")
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
+	defer cancel()
+
+	tokenString, user, err := s.authService.Login(ctx, req)
+	if err != nil {
+		if errors.Is(err, service.ErrInvalidCredentials) {
+			respondWithError(w, http.StatusUnauthorized, err.Error())
+			return
+		}
+		respondWithError(w, http.StatusInternalServerError, "Ошибка сервера")
+		return
+	}
+
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"access_token": tokenString,
+		"user":         user,
+	})
+}
+
+func (s *Server) HandleGetMe(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	userID, ok := middleware.GetUserIDFromContext(r.Context())
+	if !ok {
+		respondWithError(w, http.StatusUnauthorized, "Неавторизован")
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
+	defer cancel()
+
+	user, err := s.authService.GetMe(ctx, userID)
+	if err != nil {
+		respondWithError(w, http.StatusNotFound, "Пользователь не найден")
+		return
+	}
+
+	json.NewEncoder(w).Encode(user)
 }
 
 func (s *Server) HandleAuthPage(w http.ResponseWriter, r *http.Request) {
@@ -65,7 +118,5 @@ func (s *Server) HandleAuthPage(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-
-	filePath := "/app/frontend/auth.html"
-	http.ServeFile(w, r, filePath)
+	http.ServeFile(w, r, "/app/frontend/auth.html")
 }

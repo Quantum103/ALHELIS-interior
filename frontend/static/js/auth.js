@@ -1,16 +1,20 @@
 /* =========================================
-   1. Cursor glow & Particles (Desktop only)
+   1. Dynamic Background & Visual FX
    ========================================= */
 const cg = document.getElementById('cg');
 let mx = innerWidth / 2, my = innerHeight / 2, cx = mx, cy = my;
-addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY });
-addEventListener('mouseleave', () => cg.style.opacity = 0);
-addEventListener('mouseenter', () => cg.style.opacity = 1);
+
+addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+addEventListener('mouseleave', () => { if (cg) cg.style.opacity = '0'; });
+addEventListener('mouseenter', () => { if (cg) cg.style.opacity = '1'; });
+
 (function loop() {
   cx += (mx - cx) * 0.08;
   cy += (my - cy) * 0.08;
-  cg.style.left = cx + 'px';
-  cg.style.top = cy + 'px';
+  if (cg) {
+    cg.style.left = cx + 'px';
+    cg.style.top = cy + 'px';
+  }
   requestAnimationFrame(loop);
 })();
 
@@ -18,7 +22,7 @@ const mm = matchMedia('(min-width:1024px)');
 function initParticles() {
   if (!mm.matches) return;
   const c = document.getElementById('ptc');
-  if (c.childElementCount) return;
+  if (!c || c.childElementCount) return;
   for (let i = 0; i < 22; i++) {
     const p = document.createElement('span');
     p.className = 'particle';
@@ -34,10 +38,10 @@ mm.addEventListener('change', initParticles);
 initParticles();
 
 /* =========================================
-   2. UI Logic: Switch, Password, Strength
+   2. Form Switcher & Password Mechanics
    ========================================= */
 const sw = document.getElementById('sw');
-const btns = [...sw.querySelectorAll('button')];
+const btns = sw ? [...sw.querySelectorAll('button')] : [];
 const loginF = document.getElementById('loginForm');
 const regF = document.getElementById('regForm');
 const fTitle = document.getElementById('fTitle');
@@ -63,6 +67,7 @@ btns.forEach(b => b.addEventListener('click', () => {
 document.querySelectorAll('.pwd-toggle').forEach(btn => {
   btn.addEventListener('click', () => {
     const inp = document.getElementById(btn.dataset.for);
+    if (!inp) return;
     const show = inp.type === 'password';
     inp.type = show ? 'text' : 'password';
     btn.textContent = show ? 'Скрыть' : 'Показать';
@@ -73,7 +78,7 @@ const rPwd = document.getElementById('rPwd');
 const str = document.getElementById('str');
 const hint = document.getElementById('hint');
 
-function score(v) {
+function scorePassword(v) {
   let s = 0;
   if (v.length >= 6) s++;
   if (v.length >= 10) s++;
@@ -82,70 +87,100 @@ function score(v) {
   return s;
 }
 
-rPwd.addEventListener('input', () => {
-  const v = rPwd.value;
-  const s = v ? score(v) : 0;
-  str.className = 'strength' + (s ? ' w' + s : '');
-  const msgs = ['Введите пароль', 'Слабый', 'Средний', 'Хороший', 'Отличный'];
-  hint.textContent = msgs[s] || msgs[0];
-  hint.style.color = ['var(--muted)', '#c74a4a', 'var(--bronze)', 'var(--gold)', '#8fa876'][s];
-});
+if (rPwd && str && hint) {
+  rPwd.addEventListener('input', () => {
+    const v = rPwd.value;
+    const s = v ? scorePassword(v) : 0;
+    str.className = 'strength' + (s ? ' w' + s : '');
+    const msgs = ['Введите пароль', 'Слабый', 'Средний', 'Хороший', 'Отличный'];
+    hint.textContent = msgs[s] || msgs[0];
+    hint.style.color = ['var(--muted)', '#c74a4a', 'var(--bronze)', 'var(--gold)', '#8fa876'][s];
+  });
+}
 
 /* =========================================
-   3. Validation & Real API Submit
+   3. Helpers & Validation
    ========================================= */
-function validEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
-function setErr(inp, on) { inp.closest('.field').classList.toggle('err', on); }
+function validEmail(v) { 
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); 
+}
+
+function setErr(inp, on) { 
+  if (inp) inp.closest('.field').classList.toggle('err', on); 
+}
 
 function pulseCard(card) {
+  if (!card) return;
   card.animate([
     { boxShadow: '0 0 0 0 rgba(214,184,138,.55)' },
     { boxShadow: '0 0 0 30px rgba(214,184,138,0)' }
   ], { duration: 800, easing: 'cubic-bezier(.2,.8,.2,1)' });
 }
 
-// Универсальная функция отправки с анимацией и реальным fetch
-function handleRealSubmit(form, btn, validateFn, apiPath, successMsg) {
+function showSuccessCard(message, redirectUrl) {
+  const card = document.getElementById('card');
+  if (!card) return;
+
+  card.innerHTML = `
+    <div class="success">
+      <div class="ic">✓</div>
+      <h3>${message}</h3>
+      <p>Перенаправляем в кабинет…</p>
+      <a class="submit" style="margin-top:26px;display:inline-block;max-width:260px;text-decoration:none" href="${redirectUrl || '/dashboard'}">Перейти →</a>
+    </div>`;
+
+  if (redirectUrl) {
+    setTimeout(() => { window.location.href = redirectUrl; }, 1200);
+  }
+}
+
+/* =========================================
+   4. API Handlers & Form Submit
+   ========================================= */
+function setupFormSubmit(form, btn, validateAndGetPayload, apiPath, successMsg) {
+  if (!form || !btn) return;
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    
-    // 1. Валидация
-    const isOk = validateFn();
-    if (!isOk) return;
 
-    // 2. Анимация загрузки
+    // 1. Проверка и сбор данных из формы
+    const payload = validateAndGetPayload();
+    if (!payload) return; // Ошибка валидации — останавливаем отправку
+
+    // 2. Индикация загрузки
     btn.classList.add('loading');
     btn.disabled = true;
     pulseCard(document.getElementById('card'));
 
     try {
-      // 3. Реальный запрос к Nginx Gateway
+      // 3. Отправка запроса через Nginx Gateway
       const response = await fetch(apiPath, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(validateFn.payload) // Данные берет из замыкания validateFn
+        body: JSON.stringify(payload)
       });
 
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Ошибка сервера');
 
-      // 4. Успех: сохраняем токен и показываем красивую анимацию
-      if (apiPath.includes('/login')) {
-        localStorage.setItem('token', data.token);
-        if (data.user) localStorage.setItem('user', JSON.stringify(data.user));
+      if (!response.ok) {
+        throw new Error(data.error || 'Ошибка сервера при обработке запроса');
       }
 
-      // Красивая подмена контента (из вашего оригинального скрипта)
-      document.getElementById('card').innerHTML = `
-        <div class="success">
-          <div class="ic">✓</div>
-          <h3>${successMsg}</h3>
-          <p>Перенаправляем в кабинет…</p>
-          <a class="submit" style="margin-top:26px;display:inline-block;max-width:260px;text-decoration:none" href="/dashboard">Перейти →</a>
-        </div>`;
-      
-      // Реальный редирект через 1.5 секунды
-      setTimeout(() => { window.location.href = '/dashboard'; }, 1500);
+      // 4. Успешный Вход
+      if (apiPath.includes('/login')) {
+        if (data.access_token) localStorage.setItem('access_token', data.access_token);
+        if (data.token) localStorage.setItem('token', data.token); // Для обратной совместимости
+        if (data.user) localStorage.setItem('user', JSON.stringify(data.user));
+
+        showSuccessCard(successMsg, '/dashboard');
+      } 
+      // 5. Успешная Регистрация
+      else if (apiPath.includes('/register')) {
+        showSuccessCard(successMsg + '<br><small style="font-size:14px;font-weight:400;opacity:0.8">Вы можете войти под своим логином</small>', null);
+        setTimeout(() => {
+          location.reload(); // Перезагрузка страницы для входа
+        }, 2000);
+      }
 
     } catch (err) {
       btn.classList.remove('loading');
@@ -155,50 +190,79 @@ function handleRealSubmit(form, btn, validateFn, apiPath, successMsg) {
   });
 }
 
-// Настройка ВХОДА
-handleRealSubmit(loginF, document.getElementById('lSub'), () => {
-  const u = document.getElementById('lUsername'); // ИСПРАВЛЕНО: был lEmail
-  const p = document.getElementById('lPwd');
-  const uOk = u.value.trim().length >= 2;
-  const pOk = p.value.length >= 6;
-  
-  setErr(u, !uOk); setErr(p, !pOk);
-  if (!uOk) { u.focus(); return false; }
-  if (!pOk) { p.focus(); return false; }
-  
-  // Сохраняем payload для fetch
-  handleRealSubmit.payload = { username: u.value.trim(), password: p.value };
-  return true;
-}, '/api/auth/login', 'Вы <em>в системе</em>');
-
-// Настройка РЕГИСТРАЦИИ
-handleRealSubmit(regF, document.getElementById('rSub'), () => {
-  const n = document.getElementById('rName');
-  const e = document.getElementById('rEmail');
-  const p = document.getElementById('rPwd');
-  const p2 = document.getElementById('rPwd2');
-  const ag = document.getElementById('agree');
-  
-  const nOk = n.value.trim().length >= 2;
-  const eOk = validEmail(e.value.trim());
-  const pOk = p.value.length >= 6;
-  const p2Ok = p2.value && p2.value === p.value;
-  
-  setErr(n, !nOk); setErr(e, !eOk); setErr(p, !pOk); setErr(p2, !p2Ok);
-  if (!nOk) { n.focus(); return false; }
-  if (!eOk) { e.focus(); return false; }
-  if (!pOk) { p.focus(); return false; }
-  if (!p2Ok) { p2.focus(); return false; }
-  if (!ag.checked) {
-    ag.parentElement.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-6px)' }, { transform: 'translateX(6px)' }, { transform: 'translateX(0)' }], { duration: 300 });
-    return false;
-  }
-  
-  handleRealSubmit.payload = { name: n.value.trim(), email: e.value.trim(), password: p.value };
-  return true;
-}, '/api/auth/register', 'Аккаунт <em>создан</em>');
-
-// Сброс ошибок при вводе
+// Сброс красной подсветки при вводе
 document.querySelectorAll('.field input').forEach(inp => {
   inp.addEventListener('input', () => setErr(inp, false));
 });
+
+// Настройка формы ВХОДА
+setupFormSubmit(
+  loginF, 
+  document.getElementById('lSub'), 
+  () => {
+    const u = document.getElementById('lUsername');
+    const p = document.getElementById('lPwd');
+    
+    const uOk = u.value.trim().length >= 2;
+    const pOk = p.value.length >= 6;
+
+    setErr(u, !uOk); 
+    setErr(p, !pOk);
+
+    if (!uOk) { u.focus(); return null; }
+    if (!pOk) { p.focus(); return null; }
+
+    return { 
+      username: u.value.trim(), 
+      password: p.value 
+    };
+  }, 
+  '/api/auth/login', 
+  'Вы <em>в системе</em>'
+);
+
+// Настройка формы РЕГИСТРАЦИИ
+setupFormSubmit(
+  regF, 
+  document.getElementById('rSub'), 
+  () => {
+    const n = document.getElementById('rName');
+    const e = document.getElementById('rEmail');
+    const p = document.getElementById('rPwd');
+    const p2 = document.getElementById('rPwd2');
+    const ag = document.getElementById('agree');
+
+    const nOk = n.value.trim().length >= 2;
+    const eOk = validEmail(e.value.trim());
+    const pOk = p.value.length >= 6;
+    const p2Ok = p2.value && p2.value === p.value;
+
+    setErr(n, !nOk); 
+    setErr(e, !eOk); 
+    setErr(p, !pOk); 
+    setErr(p2, !p2Ok);
+
+    if (!nOk) { n.focus(); return null; }
+    if (!eOk) { e.focus(); return null; }
+    if (!pOk) { p.focus(); return null; }
+    if (!p2Ok) { p2.focus(); return null; }
+
+    if (!ag.checked) {
+      ag.parentElement.animate([
+        { transform: 'translateX(0)' }, 
+        { transform: 'translateX(-6px)' }, 
+        { transform: 'translateX(6px)' }, 
+        { transform: 'translateX(0)' }
+      ], { duration: 300 });
+      return null;
+    }
+
+    return { 
+      name: n.value.trim(), 
+      email: e.value.trim(), 
+      password: p.value 
+    };
+  }, 
+  '/api/auth/register', 
+  'Аккаунт <em>создан</em>'
+);
