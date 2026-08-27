@@ -39,6 +39,7 @@
    DB_USER=alhelis
    DB_PASSWORD=password
    DB_NAME=alhelis
+   JWT_SECRET=super-secret-key-for-my-app
 
 3. Запустите все сервисы в фоновом режиме
    ```bash
