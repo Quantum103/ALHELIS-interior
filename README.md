@@ -39,12 +39,12 @@
 2. Создайте файл `.env` в корне проекта:
    ```env
    DB_HOST=postgres_db
-   DB_PORT=5432
-   DB_USER=alhelis
-   DB_PASSWORD=password
-   DB_NAME=alhelis
-   JWT_SECRET=super-secret-key-for-my-app
-
+   DB_PORT=
+   DB_USER=
+   DB_PASSWORD=
+   DB_NAME=
+   JWT_SECRET=
+   
 3. Запустите все сервисы в фоновом режиме
    ```bash
    docker compose up --build -d
