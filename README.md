@@ -1,4 +1,7 @@
 [![Go CI](https://github.com/Quantum103/ALHELIS-interior/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Quantum103/ALHELIS-interior/actions/workflows/ci.yml)
+[![Go Version](https://img.shields.io/github/go-mod/v/Quantum103/ALHELIS-interior?filename=auth-service%2Fgo.mod)](https://github.com/Quantum103/ALHELIS-interior)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![GitHub repo size](https://img.shields.io/github/repo-size/Quantum103/ALHELIS-interior)](https://github.com/Quantum103/ALHELIS-interior)
 # ALHELIS Interior
 
 Платформа для заказа дизайн-проектов интерьеров. Проект задуман как микросервисное веб-приложение, где клиенты могут смотреть портфолио, регистрироваться, оставлять заявки и связываться со специалистами. 
