@@ -1,11 +1,10 @@
 package service
 
 import (
+	"auth-service/internal/models"
 	"context"
 	"errors"
 	"time"
-
-	"auth-service/internal/models"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/jackc/pgx/v5"
