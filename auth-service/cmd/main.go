@@ -7,6 +7,7 @@ import (
 	"auth-service/internal/middleware"
 	repository "auth-service/internal/repo"
 	"auth-service/internal/service"
+	"os"
 
 	"log"
 	"net"
@@ -31,7 +32,7 @@ func main() {
 	userRepo := repository.NewUserRepository(db)
 	authSvc := service.NewAuthService(userRepo, string(cfg.JWTSecret))
 	srv := handlers.NewServer(authSvc)
-	jwtSecret := []byte("super-secret-key-change-me")
+	jwtSecret := []byte(os.Getenv("JWT_SECRET"))
 	authMiddleware := middleware.JWTAuthMiddleware(jwtSecret)
 
 	mux := http.NewServeMux()

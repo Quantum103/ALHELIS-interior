@@ -1,0 +1,32 @@
+name: Go CI
+
+on:
+  push:
+    branches: [ "main", "master" ] # push
+  pull_request:
+    branches: [ "main", "master" ] # pull request
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest 
+
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.26' 
+
+    # Скачиваем все зависимости 
+    - name: Install dependencies
+      run: go mod download
+
+    # Проверяем, что код компилируется 
+    - name: Build
+      run: go build -v ./...
+
+    # 5. Запускаем тесты 
+    - name: Test
+      run: go test -v ./...
