@@ -1,3 +1,4 @@
+[![Go CI](https://github.com/Quantum103/ALHELIS-interior/actions/workflows/ci.yml/badge.svg)](https://github.com/Quantum103/ALHELIS-interior/actions/workflows/ci.yml)
 # ALHELIS Interior
 
 Платформа для заказа дизайн-проектов интерьеров. Проект задуман как микросервисное веб-приложение, где клиенты могут смотреть портфолио, регистрироваться, оставлять заявки и связываться со специалистами. 

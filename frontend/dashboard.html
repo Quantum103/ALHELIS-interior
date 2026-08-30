@@ -1,187 +1,43 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ID INTERIOR — Design Studio</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="static/css/dashboard.css">
+name: Go CI
 
-</head>
-<body>
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
 
-    <!-- HEADER -->
-    <header class="header" id="header">
-        <div class="header-left">
-            <a href="#" class="logo">ID INTERIOR</a>
-            <span class="logo-sub">Design Studio</span>
-        </div>
-        <nav class="header-nav">
-            <a href="#projects">Проекты</a>
-            <a href="#philosophy">Философия</a>
-            <a href="#contacts">Контакты</a>
-        </nav>
-        <div class="header-right">
-            <a href="/auth" class="header-account">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                    <circle cx="12" cy="7" r="4"/>
-                </svg>
-                Личный кабинет
-            </a>
-            <button class="menu-btn" id="menuBtn" aria-label="Меню">
-                <span></span>
-                <span></span>
-            </button>
-        </div>
-    </header>
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest 
 
-    <!-- MOBILE DRAWER -->
-    <div class="mobile-drawer" id="mobileDrawer">
-        <a href="#projects" onclick="closeDrawer()">Проекты</a>
-        <a href="#philosophy" onclick="closeDrawer()">Философия</a>
-        <a href="#contacts" onclick="closeDrawer()">Контакты</a>
-        <a href="#" class="drawer-account" onclick="closeDrawer()">Личный кабинет</a>
-    </div>
+    # 1. Задаем матрицу: перечисляем папки наших микросервисов
+    strategy:
+      matrix:
+        service: 
+          - auth-service
+          # Когда начнешь писать следующий сервис, просто раскомментируй строку ниже:
+          # - user-service 
+          # - portfolio-service
 
-    <!-- HERO -->
-    <section class="hero" id="projects">
-        <div class="hero-bg">
-            <img src="/media/user-service/dashboard/glav-dashboard.jpg" alt="Luxury Interior" loading="eager">
-        </div>
-        <div class="hero-overlay"></div>
-        <div class="hero-content">
-            <h1 class="hero-title fade-in">
-                <span>Создаём</span>
-                <span>пространства,</span>
-                <span>в которых хочется</span>
-                <span>жить</span>
-            </h1>
-            <p class="hero-subtitle fade-in">
-                Дизайн интерьера премиум-класса для жизни на высшем уровне.
-            </p>
-            <a href="#directions" class="btn-outline fade-in">
-                Смотреть проекты
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M5 12h14M12 5l7 7-7 7"/>
-                </svg>
-            </a>
-        </div>
-    </section>
+    # 2. Указываем роботу переходить в папку текущего сервиса из матрицы
+    defaults:
+      run:
+        working-directory: ./${{ matrix.service }}
 
-    <!-- DIRECTIONS -->
-    <section class="directions" id="directions">
-        <div class="container">
-            <p class="section-label fade-in">Выберите направление</p>
-            <div class="directions-grid">
-                <div class="direction-card fade-in">
-                    <img src="/media/user-service/dashboard/Premium.jpg" alt="Премиум стиль" loading="lazy">
-                    <div class="direction-card-overlay">
-                        <h3>Премиум стиль</h3>
-                        <p>Элегантность и роскошь</p>
-                    </div>
-                </div>
-                <div class="direction-card fade-in">
-                    <img src="/media/user-service/dashboard/classik.jpg" alt="Классический стиль" loading="lazy">
-                    <div class="direction-card-overlay">
-                        <h3>Классический стиль</h3>
-                        <p>Вне времени</p>
-                    </div>
-                </div>
-                <div class="direction-card fade-in">
-                    <img src="/media/user-service/dashboard/sovremen.jpg" alt="Современный стиль" loading="lazy">
-                    <div class="direction-card-overlay">
-                        <h3>Современный стиль</h3>
-                        <p>Простота и функциональность</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v4
 
-    <!-- PHILOSOPHY -->
-    <section class="philosophy" id="philosophy">
-        <div class="philosophy-inner">
-            <div class="philosophy-image">
-                <img src="/media/user-service/dashboard/psixology.jpg" alt="Interior Philosophy" loading="lazy">
-            </div>
-            <div class="philosophy-content fade-in">
-                <h2>Создаём пространства,<br>которые отражают вас.</h2>
-                <p>Мы проектируем интерьеры, в которых архитектура, материалы, свет и функциональность работают как единое целое.</p>
-                <div class="bronze-line"></div>
-            </div>
-        </div>
-    </section>
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.26'
 
-    <!-- STATS -->
-    <section class="stats">
-        <div class="container">
-            <div class="stats-grid">
-                <div class="stat-item fade-in">
-                    <div class="stat-number">10+</div>
-                    <div class="stat-label">Лет опыта</div>
-                </div>
-                <div class="stat-item fade-in">
-                    <div class="stat-number">250+</div>
-                    <div class="stat-label">Реализованных проектов</div>
-                </div>
-                <div class="stat-item fade-in">
-                    <div class="stat-number">5</div>
-                    <div class="stat-label">Стран мира</div>
-                </div>
-            </div>
-        </div>
-    </section>
+    - name: Install dependencies
+      run: go mod download
 
-    <!-- CTA -->
-    <section class="cta">
-        <div class="container">
-            <h2 class="fade-in">Готовы создать<br>свой интерьер?</h2>
-            <a href="#contacts" class="btn-outline fade-in">
-                Обсудить проект
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M5 12h14M12 5l7 7-7 7"/>
-                </svg>
-            </a>
-        </div>
-    </section>
+    - name: Build
+      run: go build -v ./...
 
-    <!-- FOOTER -->
-    <footer class="footer" id="contacts">
-        <div class="container">
-            <div class="footer-inner">
-                <div class="footer-brand">
-                    <a href="#" class="logo">ID INTERIOR</a>
-                    <p>Премиальный дизайн интерьеров для тех, кто ценит совершенство в деталях.</p>
-                </div>
-                <div class="footer-col">
-                    <h4>Навигация</h4>
-                    <a href="#projects">Проекты</a>
-                    <a href="#philosophy">Философия</a>
-                    <a href="#contacts">Контакты</a>
-                </div>
-                <div class="footer-col">
-                    <h4>Контакты</h4>
-                    <a href="tel:+74951234567">+7 (495) 123-45-67</a>
-                    <a href="mailto:hello@idinterior.ru">hello@idinterior.ru</a>
-                    <a href="#">Москва</a>
-                </div>
-                <div class="footer-col">
-                    <h4>Соцсети</h4>
-                    <a href="#">Instagram</a>
-                    <a href="#">Telegram</a>
-                    <a href="#">Pinterest</a>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>© ID INTERIOR</p>
-                <p>Все права защищены</p>
-            </div>
-        </div>
-    </footer>
-
-    <script src="static/js/dashboard.js"></script>
-</body>
-</html>
+    - name: Test
+      run: go test -v ./...

@@ -2,13 +2,24 @@ name: Go CI
 
 on:
   push:
-    branches: [ "main", "master" ] # push
+    branches: [ "main", "master" ]
   pull_request:
-    branches: [ "main", "master" ] # pull request
+    branches: [ "main", "master" ]
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest 
+
+    strategy:
+      matrix:
+        service: 
+          - proto
+          - auth-service
+          - user-service
+
+    defaults:
+      run:
+        working-directory: ./${{ matrix.service }}
 
     steps:
     - name: Check out code
@@ -17,16 +28,13 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
-        go-version: '1.26' 
+        go-version: '1.26'
 
-    # Скачиваем все зависимости 
     - name: Install dependencies
       run: go mod download
 
-    # Проверяем, что код компилируется 
     - name: Build
       run: go build -v ./...
 
-    # 5. Запускаем тесты 
     - name: Test
       run: go test -v ./...
