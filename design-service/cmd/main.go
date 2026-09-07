@@ -1,6 +1,7 @@
 package main
 
 import (
+	"design-service/internal/handlers"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -9,7 +10,7 @@ import (
 func main() {
 	r := mux.NewRouter()
 
-	// r.HandleFunc("/users/me", )
+	r.HandleFunc("/dashboard", handlers.DashboardFunc)
 
 	http.ListenAndServe(":8082", r)
 }
