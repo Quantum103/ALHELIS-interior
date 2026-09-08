@@ -1,0 +1,1506 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Личный кабинет — ID INTERIOR</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600&display=swap"
+          rel="stylesheet">
+
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+    <link rel="stylesheet" href="/static/css/profile.css">
+</head>
+
+<body>
+
+<header class="header">
+    <div class="container header-container">
+
+        <a href="/" class="logo">
+            <span class="logo-main">ID INTERIOR</span>
+            <span class="logo-sub">Design Studio</span>
+        </a>
+
+        <nav class="nav">
+            <a href="/">Главная</a>
+            <a href="/designs">Дизайны</a>
+            <a href="/designers">Дизайнеры</a>
+            <a href="/about">О студии</a>
+        </nav>
+
+        <div class="header-actions">
+            <a href="/profile" class="account-link active">
+                Личный кабинет
+            </a>
+
+            <button class="mobile-menu-button" id="mobileMenuButton" type="button">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+
+    </div>
+</header>
+
+<div class="mobile-menu" id="mobileMenu">
+
+    <nav class="mobile-nav">
+        <a href="/">Главная</a>
+        <a href="/designs">Дизайны</a>
+        <a href="/designers">Дизайнеры</a>
+        <a href="/about">О студии</a>
+        <a href="/profile">Личный кабинет</a>
+    </nav>
+
+</div>
+
+
+<main>
+
+    <!-- HERO -->
+
+    <section class="profile-hero">
+        <div class="container">
+
+            <div class="profile-hero-content">
+
+                <div class="profile-label">
+                    ЛИЧНЫЙ КАБИНЕТ
+                </div>
+
+                <h1>
+                    Ваше пространство
+                </h1>
+
+                <p>
+                    Управляйте проектами, избранными дизайнами
+                    и настройками аккаунта.
+                </p>
+
+            </div>
+
+        </div>
+    </section>
+
+
+    <!-- PROFILE -->
+
+    <section class="profile-section">
+
+        <div class="container">
+
+            <div class="profile-layout">
+
+                <!-- SIDEBAR -->
+
+                <aside class="profile-sidebar">
+
+                    <div class="profile-sidebar-title">
+                        Личный кабинет
+                    </div>
+
+                    <nav class="profile-nav">
+
+                        <button
+                                class="profile-nav-item active"
+                                type="button"
+                                data-section="projects">
+                            <span>Мои проекты</span>
+                        </button>
+
+                        <button
+                                class="profile-nav-item"
+                                type="button"
+                                data-section="favorites">
+                            <span>Избранное</span>
+                        </button>
+
+                        <button
+                                class="profile-nav-item"
+                                type="button"
+                                data-section="settings">
+                            <span>Настройки</span>
+                        </button>
+
+                        <a
+                                href="/chat"
+                                class="profile-nav-item">
+                            <span>Сообщения</span>
+                        </a>
+
+                    </nav>
+
+                    <div class="profile-sidebar-bottom">
+
+                        <button
+                                class="logout-button"
+                                id="logoutButton"
+                                type="button">
+                            Выйти из аккаунта
+                        </button>
+
+                    </div>
+
+                </aside>
+
+
+                <!-- CONTENT -->
+
+                <div class="profile-content">
+
+
+                    <!-- ==================== -->
+                    <!-- PROJECTS -->
+                    <!-- ==================== -->
+
+                    <section
+                            class="profile-panel active"
+                            id="projectsSection">
+
+                        <div class="section-heading">
+
+                            <div>
+                                <span class="section-label">
+                                    ПРОЕКТЫ
+                                </span>
+
+                                <h2>
+                                    Мои проекты
+                                </h2>
+
+                                <p>
+                                    Здесь отображаются оформленные вами заказы
+                                    и их текущий статус.
+                                </p>
+                            </div>
+
+                        </div>
+
+
+                        <!-- Loading -->
+
+                        <div
+                                class="profile-loading"
+                                id="projectsLoading">
+
+                            <div class="loading-item"></div>
+                            <div class="loading-item"></div>
+
+                        </div>
+
+
+                        <!-- Empty -->
+
+                        <div
+                                class="profile-empty hidden"
+                                id="projectsEmpty">
+
+                            <div class="empty-icon">
+                                +
+                            </div>
+
+                            <h3>
+                                Проектов пока нет
+                            </h3>
+
+                            <p>
+                                Выберите подходящий дизайн и оформите заказ,
+                                чтобы он появился здесь.
+                            </p>
+
+                            <a
+                                    href="/designs"
+                                    class="profile-button">
+                                Смотреть дизайны
+                            </a>
+
+                        </div>
+
+
+                        <!-- Projects -->
+
+                        <div
+                                class="projects-list"
+                                id="projectsList">
+                        </div>
+
+                    </section>
+
+
+                    <!-- ==================== -->
+                    <!-- FAVORITES -->
+                    <!-- ==================== -->
+
+                    <section
+                            class="profile-panel"
+                            id="favoritesSection">
+
+                        <div class="section-heading">
+
+                            <div>
+                                <span class="section-label">
+                                    ИЗБРАННОЕ
+                                </span>
+
+                                <h2>
+                                    Избранные дизайны
+                                </h2>
+
+                                <p>
+                                    Дизайны, которые вы сохранили для
+                                    дальнейшего просмотра.
+                                </p>
+                            </div>
+
+                        </div>
+
+
+                        <!-- Loading -->
+
+                        <div
+                                class="profile-loading hidden"
+                                id="favoritesLoading">
+
+                            <div class="loading-item"></div>
+                            <div class="loading-item"></div>
+
+                        </div>
+
+
+                        <!-- Empty -->
+
+                        <div
+                                class="profile-empty hidden"
+                                id="favoritesEmpty">
+
+                            <div class="empty-icon">
+                                ♡
+                            </div>
+
+                            <h3>
+                                Избранное пусто
+                            </h3>
+
+                            <p>
+                                Добавляйте понравившиеся дизайны,
+                                чтобы быстро возвращаться к ним.
+                            </p>
+
+                            <a
+                                    href="/designs"
+                                    class="profile-button">
+                                Смотреть дизайны
+                            </a>
+
+                        </div>
+
+
+                        <!-- Favorites -->
+
+                        <div
+                                class="favorites-grid"
+                                id="favoritesList">
+                        </div>
+
+                    </section>
+
+
+                    <!-- ==================== -->
+                    <!-- SETTINGS -->
+                    <!-- ==================== -->
+
+                    <section
+                            class="profile-panel"
+                            id="settingsSection">
+
+                        <div class="section-heading">
+
+                            <div>
+                                <span class="section-label">
+                                    АККАУНТ
+                                </span>
+
+                                <h2>
+                                    Настройки
+                                </h2>
+
+                                <p>
+                                    Управление персональными данными
+                                    и безопасностью аккаунта.
+                                </p>
+                            </div>
+
+                        </div>
+
+
+                        <!-- PERSONAL DATA -->
+
+                        <div class="settings-card">
+
+                            <div class="settings-card-header">
+
+                                <div>
+                                    <span class="settings-label">
+                                        ПРОФИЛЬ
+                                    </span>
+
+                                    <h3>
+                                        Личные данные
+                                    </h3>
+                                </div>
+
+                            </div>
+
+
+                            <form id="profileForm">
+
+                                <div class="form-group">
+
+                                    <label for="name">
+                                        Имя
+                                    </label>
+
+                                    <input
+                                            type="text"
+                                            id="name"
+                                            name="name"
+                                            autocomplete="name"
+                                            placeholder="Введите имя">
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label for="email">
+                                        Email
+                                    </label>
+
+                                    <input
+                                            type="email"
+                                            id="email"
+                                            name="email"
+                                            autocomplete="email"
+                                            placeholder="Email"
+                                            disabled>
+
+                                </div>
+
+
+                                <div
+                                        class="form-message"
+                                        id="profileMessage">
+                                </div>
+
+
+                                <button
+                                        type="submit"
+                                        class="profile-button">
+                                    Сохранить изменения
+                                </button>
+
+                            </form>
+
+                        </div>
+
+
+                        <!-- PASSWORD -->
+
+                        <div class="settings-card">
+
+                            <div class="settings-card-header">
+
+                                <div>
+                                    <span class="settings-label">
+                                        БЕЗОПАСНОСТЬ
+                                    </span>
+
+                                    <h3>
+                                        Изменить пароль
+                                    </h3>
+                                </div>
+
+                            </div>
+
+
+                            <form id="passwordForm">
+
+                                <div class="form-group">
+
+                                    <label for="currentPassword">
+                                        Текущий пароль
+                                    </label>
+
+                                    <input
+                                            type="password"
+                                            id="currentPassword"
+                                            name="currentPassword"
+                                            autocomplete="current-password"
+                                            placeholder="Введите текущий пароль">
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label for="newPassword">
+                                        Новый пароль
+                                    </label>
+
+                                    <input
+                                            type="password"
+                                            id="newPassword"
+                                            name="newPassword"
+                                            autocomplete="new-password"
+                                            placeholder="Введите новый пароль">
+
+                                </div>
+
+
+                                <div class="form-group">
+
+                                    <label for="confirmPassword">
+                                        Повторите новый пароль
+                                    </label>
+
+                                    <input
+                                            type="password"
+                                            id="confirmPassword"
+                                            name="confirmPassword"
+                                            autocomplete="new-password"
+                                            placeholder="Повторите новый пароль">
+
+                                </div>
+
+
+                                <div
+                                        class="form-message"
+                                        id="passwordMessage">
+                                </div>
+
+
+                                <button
+                                        type="submit"
+                                        class="profile-button">
+                                    Изменить пароль
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                    </section>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<!-- FOOTER -->
+
+<footer class="footer">
+
+    <div class="container">
+
+        <div class="footer-content">
+
+            <div class="footer-brand">
+
+                <div class="logo">
+                    <span class="logo-main">
+                        ID INTERIOR
+                    </span>
+
+                    <span class="logo-sub">
+                        Design Studio
+                    </span>
+                </div>
+
+                <p>
+                    Пространство, созданное для жизни.
+                </p>
+
+            </div>
+
+
+            <div class="footer-links">
+
+                <div class="footer-column">
+
+                    <span class="footer-title">
+                        Навигация
+                    </span>
+
+                    <a href="/">
+                        Главная
+                    </a>
+
+                    <a href="/designs">
+                        Дизайны
+                    </a>
+
+                    <a href="/designers">
+                        Дизайнеры
+                    </a>
+
+                </div>
+
+
+                <div class="footer-column">
+
+                    <span class="footer-title">
+                        Кабинет
+                    </span>
+
+                    <a href="/profile">
+                        Личный кабинет
+                    </a>
+
+                    <a href="/chat">
+                        Сообщения
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="footer-bottom">
+
+            <span>
+                © ID INTERIOR
+            </span>
+
+            <span>
+                Design Studio
+            </span>
+
+        </div>
+
+    </div>
+
+</footer>
+
+
+<script>
+    /*
+     * ==========================================
+     * CONFIGURATION
+     * ==========================================
+     *
+     * Здесь находятся только URL API.
+     *
+     * Никаких пользовательских данных здесь нет.
+     *
+     * Пути можно изменить под API Gateway.
+     */
+
+    const API = {
+        profile: "/api/profile",
+        projects: "/api/profile/projects",
+        favorites: "/api/profile/favorites",
+
+        updateProfile: "/api/profile",
+        changePassword: "/api/auth/password",
+
+        logout: "/api/auth/logout"
+    };
+
+
+    /*
+     * ==========================================
+     * DOM
+     * ==========================================
+     */
+
+    const navItems = document.querySelectorAll(".profile-nav-item");
+
+    const panels = document.querySelectorAll(".profile-panel");
+
+    const projectsList =
+        document.getElementById("projectsList");
+
+    const projectsLoading =
+        document.getElementById("projectsLoading");
+
+    const projectsEmpty =
+        document.getElementById("projectsEmpty");
+
+    const favoritesList =
+        document.getElementById("favoritesList");
+
+    const favoritesLoading =
+        document.getElementById("favoritesLoading");
+
+    const favoritesEmpty =
+        document.getElementById("favoritesEmpty");
+
+    const profileForm =
+        document.getElementById("profileForm");
+
+    const passwordForm =
+        document.getElementById("passwordForm");
+
+    const logoutButton =
+        document.getElementById("logoutButton");
+
+
+    /*
+     * ==========================================
+     * API REQUEST
+     * ==========================================
+     */
+
+    async function apiRequest(url, options = {}) {
+
+        const response = await fetch(url, {
+            credentials: "include",
+
+            headers: {
+                "Content-Type": "application/json",
+                ...(options.headers || {})
+            },
+
+            ...options
+        });
+
+
+        if (response.status === 401) {
+
+            window.location.href = "/login";
+
+            throw new Error("Unauthorized");
+        }
+
+
+        let data = null;
+
+        const contentType =
+            response.headers.get("content-type");
+
+
+        if (
+            contentType &&
+            contentType.includes("application/json")
+        ) {
+            data = await response.json();
+        }
+
+
+        if (!response.ok) {
+
+            const message =
+                data?.message ||
+                data?.error ||
+                "Произошла ошибка";
+
+            throw new Error(message);
+        }
+
+
+        return data;
+    }
+
+
+    /*
+     * ==========================================
+     * PROFILE
+     * ==========================================
+     */
+
+    async function loadProfile() {
+
+        try {
+
+            const profile =
+                await apiRequest(API.profile);
+
+
+            /*
+             * Backend должен вернуть что-то вроде:
+             *
+             * {
+             *     "id": "...",
+             *     "name": "...",
+             *     "email": "..."
+             * }
+             *
+             * Здесь НЕТ захардкоженных значений.
+             */
+
+            document.getElementById("name").value =
+                profile?.name ?? "";
+
+            document.getElementById("email").value =
+                profile?.email ?? "";
+
+        } catch (error) {
+
+            console.error(
+                "Ошибка загрузки профиля:",
+                error
+            );
+        }
+    }
+
+
+    /*
+     * ==========================================
+     * PROJECTS
+     * ==========================================
+     */
+
+    async function loadProjects() {
+
+        projectsLoading.classList.remove("hidden");
+
+        projectsEmpty.classList.add("hidden");
+
+        projectsList.innerHTML = "";
+
+
+        try {
+
+            const projects =
+                await apiRequest(API.projects);
+
+
+            projectsLoading.classList.add("hidden");
+
+
+            if (
+                !projects ||
+                !Array.isArray(projects) ||
+                projects.length === 0
+            ) {
+
+                projectsEmpty.classList.remove("hidden");
+
+                return;
+            }
+
+
+            projects.forEach(project => {
+
+                projectsList.appendChild(
+                    createProjectCard(project)
+                );
+
+            });
+
+        } catch (error) {
+
+            projectsLoading.classList.add("hidden");
+
+            console.error(
+                "Ошибка загрузки проектов:",
+                error
+            );
+
+            projectsEmpty.classList.remove("hidden");
+        }
+    }
+
+
+    /*
+     * ==========================================
+     * PROJECT CARD
+     * ==========================================
+     */
+
+    function createProjectCard(project) {
+
+        const article =
+            document.createElement("article");
+
+        article.className =
+            "project-card";
+
+
+        /*
+         * Все значения ниже берутся
+         * исключительно из backend.
+         */
+
+        const image =
+            document.createElement("div");
+
+        image.className =
+            "project-image";
+
+
+        if (project.image_url) {
+
+            image.style.backgroundImage =
+                `url("${project.image_url}")`;
+
+        }
+
+
+        const content =
+            document.createElement("div");
+
+        content.className =
+            "project-content";
+
+
+        const top =
+            document.createElement("div");
+
+        top.className =
+            "project-top";
+
+
+        const title =
+            document.createElement("h3");
+
+        title.className =
+            "project-title";
+
+        title.textContent =
+            project.title ?? "";
+
+
+        const status =
+            document.createElement("span");
+
+        status.className =
+            "project-status";
+
+        status.textContent =
+            project.status ?? "";
+
+
+        top.appendChild(title);
+        top.appendChild(status);
+
+
+        const meta =
+            document.createElement("div");
+
+        meta.className =
+            "project-meta";
+
+
+        if (project.id) {
+
+            const id =
+                document.createElement("span");
+
+            id.textContent =
+                `№ ${project.id}`;
+
+            meta.appendChild(id);
+        }
+
+
+        if (project.created_at) {
+
+            const date =
+                document.createElement("span");
+
+            date.textContent =
+                formatDate(project.created_at);
+
+            meta.appendChild(date);
+        }
+
+
+        content.appendChild(top);
+        content.appendChild(meta);
+
+
+        article.appendChild(image);
+        article.appendChild(content);
+
+
+        if (project.url) {
+
+            article.style.cursor =
+                "pointer";
+
+            article.addEventListener(
+                "click",
+                () => {
+                    window.location.href =
+                        project.url;
+                }
+            );
+        }
+
+
+        return article;
+    }
+
+
+    /*
+     * ==========================================
+     * FAVORITES
+     * ==========================================
+     */
+
+    async function loadFavorites() {
+
+        favoritesLoading.classList.remove("hidden");
+
+        favoritesEmpty.classList.add("hidden");
+
+        favoritesList.innerHTML = "";
+
+
+        try {
+
+            const favorites =
+                await apiRequest(API.favorites);
+
+
+            favoritesLoading.classList.add("hidden");
+
+
+            if (
+                !favorites ||
+                !Array.isArray(favorites) ||
+                favorites.length === 0
+            ) {
+
+                favoritesEmpty.classList.remove("hidden");
+
+                return;
+            }
+
+
+            favorites.forEach(design => {
+
+                favoritesList.appendChild(
+                    createFavoriteCard(design)
+                );
+
+            });
+
+        } catch (error) {
+
+            favoritesLoading.classList.add("hidden");
+
+            console.error(
+                "Ошибка загрузки избранного:",
+                error
+            );
+
+            favoritesEmpty.classList.remove("hidden");
+        }
+    }
+
+
+    /*
+     * ==========================================
+     * FAVORITE CARD
+     * ==========================================
+     */
+
+    function createFavoriteCard(design) {
+
+        const article =
+            document.createElement("article");
+
+        article.className =
+            "favorite-card";
+
+
+        const image =
+            document.createElement("div");
+
+        image.className =
+            "favorite-image";
+
+
+        if (design.image_url) {
+
+            image.style.backgroundImage =
+                `url("${design.image_url}")`;
+
+        }
+
+
+        const content =
+            document.createElement("div");
+
+        content.className =
+            "favorite-content";
+
+
+        const title =
+            document.createElement("h3");
+
+        title.className =
+            "favorite-title";
+
+        title.textContent =
+            design.title ?? "";
+
+
+        const designer =
+            document.createElement("p");
+
+        designer.className =
+            "favorite-designer";
+
+        designer.textContent =
+            design.designer_name ?? "";
+
+
+        content.appendChild(title);
+        content.appendChild(designer);
+
+
+        article.appendChild(image);
+        article.appendChild(content);
+
+
+        if (design.url) {
+
+            article.style.cursor =
+                "pointer";
+
+            article.addEventListener(
+                "click",
+                () => {
+                    window.location.href =
+                        design.url;
+                }
+            );
+        }
+
+
+        return article;
+    }
+
+
+    /*
+     * ==========================================
+     * PROFILE UPDATE
+     * ==========================================
+     */
+
+    profileForm.addEventListener(
+        "submit",
+        async event => {
+
+            event.preventDefault();
+
+
+            const message =
+                document.getElementById(
+                    "profileMessage"
+                );
+
+
+            const name =
+                document.getElementById(
+                    "name"
+                ).value.trim();
+
+
+            if (!name) {
+
+                showMessage(
+                    message,
+                    "Введите имя.",
+                    true
+                );
+
+                return;
+            }
+
+
+            try {
+
+                await apiRequest(
+                    API.updateProfile,
+                    {
+                        method: "PUT",
+
+                        body: JSON.stringify({
+                            name: name
+                        })
+                    }
+                );
+
+
+                showMessage(
+                    message,
+                    "Изменения сохранены."
+                );
+
+            } catch (error) {
+
+                showMessage(
+                    message,
+                    error.message,
+                    true
+                );
+            }
+        }
+    );
+
+
+    /*
+     * ==========================================
+     * PASSWORD
+     * ==========================================
+     */
+
+    passwordForm.addEventListener(
+        "submit",
+        async event => {
+
+            event.preventDefault();
+
+
+            const message =
+                document.getElementById(
+                    "passwordMessage"
+                );
+
+
+            const currentPassword =
+                document.getElementById(
+                    "currentPassword"
+                ).value;
+
+
+            const newPassword =
+                document.getElementById(
+                    "newPassword"
+                ).value;
+
+
+            const confirmPassword =
+                document.getElementById(
+                    "confirmPassword"
+                ).value;
+
+
+            if (!currentPassword || !newPassword) {
+
+                showMessage(
+                    message,
+                    "Заполните все необходимые поля.",
+                    true
+                );
+
+                return;
+            }
+
+
+            if (
+                newPassword !==
+                confirmPassword
+            ) {
+
+                showMessage(
+                    message,
+                    "Пароли не совпадают.",
+                    true
+                );
+
+                return;
+            }
+
+
+            try {
+
+                await apiRequest(
+                    API.changePassword,
+                    {
+                        method: "PUT",
+
+                        body: JSON.stringify({
+                            current_password:
+                                currentPassword,
+
+                            new_password:
+                                newPassword
+                        })
+                    }
+                );
+
+
+                passwordForm.reset();
+
+
+                showMessage(
+                    message,
+                    "Пароль успешно изменён."
+                );
+
+            } catch (error) {
+
+                showMessage(
+                    message,
+                    error.message,
+                    true
+                );
+            }
+        }
+    );
+
+
+    /*
+     * ==========================================
+     * LOGOUT
+     * ==========================================
+     */
+
+    logoutButton.addEventListener(
+        "click",
+        async () => {
+
+            try {
+
+                await apiRequest(
+                    API.logout,
+                    {
+                        method: "POST"
+                    }
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "Ошибка выхода:",
+                    error
+                );
+
+            } finally {
+
+                window.location.href =
+                    "/login";
+            }
+        }
+    );
+
+
+    /*
+     * ==========================================
+     * NAVIGATION
+     * ==========================================
+     */
+
+    navItems.forEach(item => {
+
+        item.addEventListener(
+            "click",
+            () => {
+
+                const section =
+                    item.dataset.section;
+
+
+                if (!section) {
+                    return;
+                }
+
+
+                navItems.forEach(
+                    navItem => {
+                        navItem.classList.remove(
+                            "active"
+                        );
+                    }
+                );
+
+
+                panels.forEach(
+                    panel => {
+                        panel.classList.remove(
+                            "active"
+                        );
+                    }
+                );
+
+
+                item.classList.add("active");
+
+
+                const target =
+                    document.getElementById(
+                        `${section}Section`
+                    );
+
+
+                if (target) {
+
+                    target.classList.add(
+                        "active"
+                    );
+                }
+
+
+                if (section === "projects") {
+
+                    loadProjects();
+
+                }
+
+
+                if (section === "favorites") {
+
+                    loadFavorites();
+
+                }
+
+            }
+        );
+
+    });
+
+
+    /*
+     * ==========================================
+     * MESSAGE
+     * ==========================================
+     */
+
+    function showMessage(
+        element,
+        text,
+        error = false
+    ) {
+
+        element.textContent =
+            text;
+
+        element.classList.remove(
+            "hidden",
+            "error",
+            "success"
+        );
+
+
+        element.classList.add(
+            error
+                ? "error"
+                : "success"
+        );
+
+
+        setTimeout(
+            () => {
+
+                element.classList.add(
+                    "hidden"
+                );
+
+            },
+            4000
+        );
+    }
+
+
+    /*
+     * ==========================================
+     * DATE
+     * ==========================================
+     */
+
+    function formatDate(value) {
+
+        const date =
+            new Date(value);
+
+
+        if (
+            Number.isNaN(
+                date.getTime()
+            )
+        ) {
+            return "";
+        }
+
+
+        return date.toLocaleDateString(
+            "ru-RU",
+            {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric"
+            }
+        );
+    }
+
+
+    /*
+     * ==========================================
+     * MOBILE MENU
+     * ==========================================
+     */
+
+    const mobileMenuButton =
+        document.getElementById(
+            "mobileMenuButton"
+        );
+
+    const mobileMenu =
+        document.getElementById(
+            "mobileMenu"
+        );
+
+
+    if (
+        mobileMenuButton &&
+        mobileMenu
+    ) {
+
+        mobileMenuButton.addEventListener(
+            "click",
+            () => {
+
+                mobileMenu.classList.toggle(
+                    "active"
+                );
+
+                mobileMenuButton.classList.toggle(
+                    "active"
+                );
+
+            }
+        );
+
+    }
+
+
+    /*
+     * ==========================================
+     * INITIALIZATION
+     * ==========================================
+     */
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        async () => {
+
+            await loadProfile();
+
+            await loadProjects();
+
+        }
+    );
+
+</script>
+
+</body>
+</html>

@@ -1,52 +1,135 @@
-upstream auth_service_http {
-    server auth-service:8080;
+syntax = "proto3";
+
+package alhelis;
+
+option go_package = "auth-servi/proto";
+
+service AlhelisService {
+    rpc ListService(ListServiceRequest) returns (ListServiceResponse);
+    rpc GetService(GetServiceRequest) returns (GetServiceResponse);
+    rpc Register(RegisterRequest) returns (RegisterResponse);
+    rpc Login(LoginRequest) returns (LoginResponse);
+    rpc CreateOrder(CreateOrderRequest) returns (CreateOrderResponse);
+    rpc ListMyOrders(ListMyOrdersRequest) returns (ListMyOrdersResponse);
+    rpc GetProfile(GetProfileRequest) returns (GetProfileResponse);
+    rpc UpdateProfile(UpdateProfileRequest) returns (UpdateProfileResponse);
+    rpc ListFavorites(ListFavoritesRequest) returns (ListFavoritesResponse);
+    rpc AddFavorite(AddFavoriteRequest) returns (AddFavoriteResponse);
+    rpc RemoveFavorite(RemoveFavoriteRequest) returns (RemoveFavoriteResponse);
 }
 
-upstream auth_service_grpc {
-    server auth-service:50052;
+
+message Service {
+    string id = 1;
+    string title = 2;
+    string description = 3;
+    double price_from = 4;  
+    string image_url = 5;
 }
 
-upstream user_service {
-    server user-service:50051;
+message ListServiceRequest {}
+
+message ListServiceResponse {
+    repeated Service services = 1;
 }
 
-server {
-    listen 80;
-    server_name localhost;
+message GetServiceRequest {
+    string id = 1;
+}
 
-    # 1. REST API: Аутентификация
-    location /api/auth/ {
-        proxy_pass http://auth_service_http/;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    }
+message GetServiceResponse {
+    Service service = 1;
+}
 
-    # 2. REST API: Пользователи
-    location /api/users/ {
-        proxy_pass http://user_service/;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-    }
+message RegisterRequest {
+    string email = 1;
+    string password = 2;
+    string name = 3;
+    string phone = 4;
+}
 
-    # 3. gRPC: Межсервисное общение (ЗДЕСЬ БЫЛА ОШИБКА)
-    # Я добавил недостающий блок "location", теперь Nginx не будет падать
-    location /alhelis.AlhelisService/ {
-        grpc_pass grpc://auth_service_grpc;
-        grpc_set_header Host $host;
-        grpc_set_header X-Real-IP $remote_addr;
-        grpc_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    }
+message RegisterResponse {
+    string user_id = 1;
+    string message = 2;
+}
 
-    # 4. Статика: Dashboard
-    location /dashboard {
-        root /usr/share/nginx/html;
-        try_files /dashboard.html /dashboard/index.html =404;
-    }
+message LoginRequest {
+    string email = 1;
+    string password = 2;
+}
 
-    # 5. Статика: Главная страница
-    location / {
-        root /usr/share/nginx/html;
-        try_files $uri $uri/ /index.html;
-    }
+message LoginResponse {
+    string token = 1;
+    string user_id = 2;
+}
+
+message CreateOrderRequest {
+    string service_id = 1;
+    string description = 2;
+    double area = 3;
+    // на случай пустого пользователя
+    string guest_name = 4;
+    string guest_email = 5;
+    string guest_phone = 6;
+}
+
+message CreateOrderResponse {
+    Order order = 1;
+}
+
+message Order {
+    string id = 1;
+    string status = 2;
+    string service_title = 3;
+    string description = 4;
+    int64 created_at = 5;
+}
+
+message ListMyOrdersRequest {}
+
+message ListMyOrdersResponse {
+    repeated Order orders = 1;  
+}
+
+message GetProfileRequest {}
+
+message GetProfileResponse {
+    string user_id = 1;
+    string name = 2;
+    string phone = 3;
+}
+
+message UpdateProfileRequest {
+    string name = 1;
+    string phone = 2;
+}
+
+message UpdateProfileResponse {
+    string message = 1;
+}
+
+message Favorite {
+    string service_id = 1;
+}
+
+message ListFavoritesRequest {}
+
+message ListFavoritesResponse {
+    repeated Favorite favorites = 1;
+}
+
+message AddFavoriteRequest {
+    string service_id = 1;
+}
+
+message AddFavoriteResponse {
+    string message = 1;
+}
+
+message RemoveFavoriteRequest {
+    string service_id = 1;
+}
+
+message RemoveFavoriteResponse {
+    string message = 1;
 }

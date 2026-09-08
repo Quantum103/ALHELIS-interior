@@ -24,7 +24,7 @@ func LoadConfigFromEnv() Config {
 		Port:     getEnv("DB_PORT", "5432"),
 		User:     getEnv("DB_USER", "alhelis"),
 		Password: getEnv("DB_PASSWORD", "coffee_password"),
-		DBName:   getEnv("DB_NAME", "auth_db"),
+		DBName:   getEnv("DB_NAME", "user_db"),
 	}
 }
 
@@ -51,7 +51,8 @@ func NewPostgresPool(cfg Config) (*pgxpool.Pool, error) {
 		return nil, fmt.Errorf("unable to ping database: %w", err)
 	}
 
-	log.Println("Успешно подключились к PostgreSQL (alhelis)")
+	log.Printf("Успешно подключились к PostgreSQL (%s)", cfg.DBName)
+
 	return pool, nil
 }
 
@@ -59,5 +60,6 @@ func getEnv(key, fallback string) string {
 	if value, exists := os.LookupEnv(key); exists {
 		return value
 	}
+
 	return fallback
 }
