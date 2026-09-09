@@ -5,7 +5,6 @@ type UserProfile struct {
 	Name   string `json:"name"`
 	Phone  string `json:"phone"`
 }
-
 type Order struct {
 	ID          int64
 	UserID      int64

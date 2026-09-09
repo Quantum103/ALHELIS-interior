@@ -1,0 +1,57 @@
+:root{--bg:#0F0F10;--card:#18191B;--card2:#252729;--stone:#3A3A3C;--text:#F5F1EA;--muted:#A89B8C;--bronze:#A78359;--gold:#D6B88A;--line:rgba(255,255,255,.08);--serif:'Cormorant Garamond',serif;--sans:'Manrope',sans-serif}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font:400 16px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
+img{display:block;width:100%;height:100%;object-fit:cover}
+a{color:inherit;text-decoration:none}
+::selection{background:var(--bronze);color:#0F0F10}
+.wrap{max-width:1280px;margin:0 auto;padding:0 40px}
+.hdr{position:fixed;top:0;left:0;right:0;z-index:100;border-bottom:1px solid transparent;transition:.4s}
+.hdr.scrolled{background:rgba(15,15,16,.88);backdrop-filter:blur(16px);border-color:var(--line)}
+.nav{display:flex;align-items:center;justify-content:space-between;height:88px}
+.logo{font:600 20px var(--serif);letter-spacing:.14em}
+.logo b{color:var(--gold);font-weight:600}
+.menu{display:flex;align-items:center;gap:38px}
+.menu a{font:600 11px/1 var(--sans);letter-spacing:.22em;text-transform:uppercase;color:var(--muted);transition:.3s}
+.menu a:hover{color:var(--gold)}
+.menu a.act{color:var(--gold)}
+.btn{display:inline-flex;align-items:center;gap:12px;padding:17px 30px;border:1px solid var(--bronze);color:var(--gold);font:700 11px/1 var(--sans);letter-spacing:.24em;text-transform:uppercase;background:none;cursor:pointer;transition:.35s}
+.btn:hover{background:var(--bronze);color:#0F0F10}
+.menu .btn{padding:13px 22px}
+.burger{display:none;flex-direction:column;gap:6px;background:none;border:0;cursor:pointer;z-index:120}
+.burger span{width:26px;height:1px;background:var(--gold);transition:.35s}
+.burger.x span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.burger.x span:nth-child(2){opacity:0}
+.burger.x span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+.rv{opacity:0;transform:translateY(30px);transition:opacity 1s,transform 1s}
+.rv.on{opacity:1;transform:none}
+.kick{font:700 11px/1 var(--sans);letter-spacing:.34em;text-transform:uppercase;color:var(--bronze);margin-bottom:22px}
+h1{font:500 clamp(44px,6vw,80px)/1.05 var(--serif)}
+em{font-style:italic;color:var(--gold)}
+.phead{padding:190px 0 0}
+.flts{display:flex;gap:12px;flex-wrap:wrap;margin:48px 0 26px}
+.flt{padding:13px 24px;border:1px solid var(--line);background:none;color:var(--muted);font:700 11px/1 var(--sans);letter-spacing:.2em;text-transform:uppercase;cursor:pointer;transition:.3s}
+.flt:hover{color:var(--gold);border-color:var(--bronze)}
+.flt.on{background:var(--gold);border-color:var(--gold);color:#0F0F10}
+.count{color:var(--muted);font-size:12px;letter-spacing:.18em;text-transform:uppercase;margin-bottom:34px}
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;padding-bottom:120px}
+.pcard{background:var(--card);transition:transform .5s;animation:fade .6s both}
+.pcard:hover{transform:translateY(-6px)}
+.pcard.hide{display:none}
+@keyframes fade{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+.pcard .im{height:300px;overflow:hidden}
+.pcard img{transition:transform 1.2s}
+.pcard:hover img{transform:scale(1.07)}
+.pcard .tx{padding:22px 24px}
+.pcard h3{font:500 24px var(--serif)}
+.pcard .meta{color:var(--muted);font-size:12px;letter-spacing:.12em;margin-top:6px;text-transform:uppercase}
+.tag{color:var(--bronze);font:700 10px/1 var(--sans);letter-spacing:.24em;text-transform:uppercase}
+.ftr{border-top:1px solid var(--line);padding:80px 0 36px;background:var(--card)}
+.fgrid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px}
+.fcol p{color:var(--muted);font-size:14px;max-width:300px;margin-top:16px}
+.fcol h5{font:700 11px/1 var(--sans);letter-spacing:.26em;text-transform:uppercase;color:var(--muted);margin-bottom:20px}
+.fcol a,.fcol span{display:block;color:var(--muted);font-size:14px;margin-bottom:12px;transition:.3s}
+.fcol a:hover{color:var(--gold)}
+.copy{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-top:64px;padding-top:28px;border-top:1px solid var(--line);color:#6d675f;font-size:12px;letter-spacing:.08em}
+@media(max-width:960px){.fgrid{grid-template-columns:1fr 1fr}.pgrid{grid-template-columns:1fr 1fr}}
+@media(max-width:900px){.menu{position:fixed;inset:0;background:rgba(15,15,16,.97);flex-direction:column;justify-content:center;gap:30px;transform:translateY(-100%);transition:.5s}.menu.open{transform:none}.burger{display:flex}.wrap{padding:0 24px}.pgrid{grid-template-columns:1fr}}

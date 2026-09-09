@@ -42,8 +42,10 @@
    DB_PORT=
    DB_USER=
    DB_PASSWORD=
-   DB_NAME=
    JWT_SECRET=
+   
+
+
    
 3. Запустите все сервисы в фоновом режиме
    ```bash

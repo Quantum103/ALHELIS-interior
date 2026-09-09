@@ -2,9 +2,10 @@ package handlers
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
-	"strconv"
 
+	"user-service/internal/middleware"
 	"user-service/internal/service"
 )
 
@@ -19,29 +20,40 @@ func NewUserHandler(service *service.UserService) *UserHandler {
 }
 
 func (h *UserHandler) ShowLK(w http.ResponseWriter, r *http.Request) {
-	userIDStr := r.Header.Get("X-User-ID")
+	userID, ok := middleware.GetUserIDFromContext(r.Context())
 
-	if userIDStr == "" {
-		http.Error(w, "user id not provided", http.StatusUnauthorized)
+	if !ok {
+		http.Error(
+			w,
+			`{"error":"Пользователь не авторизован"}`,
+			http.StatusUnauthorized,
+		)
 		return
 	}
 
-	userID, err := strconv.ParseInt(userIDStr, 10, 64)
-	if err != nil {
-		http.Error(w, "invalid user id", http.StatusBadRequest)
-		return
-	}
+	log.Printf("PROFILE USER ID: %d", userID)
 
 	profile, err := h.service.GetProfile(r.Context(), userID)
+
+	log.Printf("PROFILE: %+v", profile)
+	log.Printf("PROFILE ERROR: %v", err)
+
 	if err != nil {
-		http.Error(w, "profile not found", http.StatusNotFound)
+		http.Error(
+			w,
+			`{"error":"Профиль не найден"}`,
+			http.StatusNotFound,
+		)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 
 	if err := json.NewEncoder(w).Encode(profile); err != nil {
-		http.Error(w, "failed to encode response", http.StatusInternalServerError)
-		return
+		http.Error(
+			w,
+			`{"error":"Ошибка формирования ответа"}`,
+			http.StatusInternalServerError,
+		)
 	}
 }

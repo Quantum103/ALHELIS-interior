@@ -126,7 +126,7 @@ function showSuccessCard(message, redirectUrl) {
       <div class="ic">✓</div>
       <h3>${message}</h3>
       <p>Перенаправляем в кабинет…</p>
-      <a class="submit" style="margin-top:26px;display:inline-block;max-width:260px;text-decoration:none" href="${redirectUrl || '/dashboard'}">Перейти →</a>
+      <a class="submit" style="margin-top:26px;display:inline-block;max-width:260px;text-decoration:none" href="${redirectUrl || '/api/profile'}">Перейти →</a>
     </div>`;
 
   if (redirectUrl) {
@@ -172,7 +172,7 @@ function setupFormSubmit(form, btn, validateAndGetPayload, apiPath, successMsg) 
         if (data.token) localStorage.setItem('token', data.token); // Для обратной совместимости
         if (data.user) localStorage.setItem('user', JSON.stringify(data.user));
 
-        showSuccessCard(successMsg, '/dashboard');
+        showSuccessCard(successMsg, '/api/profile');
       } 
       // 5. Успешная Регистрация
       else if (apiPath.includes('/register')) {
@@ -257,11 +257,11 @@ setupFormSubmit(
       return null;
     }
 
-    return { 
-      name: n.value.trim(), 
-      email: e.value.trim(), 
-      password: p.value 
-    };
+return { 
+    username: n.value.trim(), 
+    email: e.value.trim(), 
+    password: p.value 
+};
   }, 
   '/api/auth/register', 
   'Аккаунт <em>создан</em>'

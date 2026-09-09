@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"log"
 	"net/http"
 	"time"
 
@@ -46,12 +47,13 @@ func (s *Server) HandleRegister(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, http.StatusBadRequest, "Неверный формат данных")
 		return
 	}
+	log.Printf("REGISTER: username=%q email=%q", req.Username, req.Email)
 
 	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
-
 	if err := s.authService.Register(ctx, req); err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Ошибка при создании пользователя")
+		log.Printf("ОШИБКА РЕГИСТРАЦИИ: %v", err)
+		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
