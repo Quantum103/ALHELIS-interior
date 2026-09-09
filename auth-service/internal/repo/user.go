@@ -46,15 +46,38 @@ func (r *UserRepository) Create(ctx context.Context, username, email, passwordHa
 
 func (r *UserRepository) GetByLogin(ctx context.Context, login string) (*models.UserResponse, string, error) {
 	query := `SELECT id, username, email, password_hash FROM users WHERE email = $1 OR username = $1`
+
 	var user models.UserResponse
 	var hash string
-	err := r.db.QueryRow(ctx, query, login).Scan(&user.ID, &user.Username, &user.Email, &hash)
-	return &user, hash, err
+
+	err := r.db.QueryRow(ctx, query, login).Scan(
+		&user.ID,
+		&user.Username,
+		&user.Email,
+		&hash,
+	)
+
+	if err != nil {
+		return nil, "", err
+	}
+
+	return &user, hash, nil
 }
 
 func (r *UserRepository) GetByID(ctx context.Context, id int64) (*models.UserResponse, error) {
 	query := `SELECT id, username, email FROM users WHERE id = $1`
+
 	var user models.UserResponse
-	err := r.db.QueryRow(ctx, query, id).Scan(&user.ID, &user.Username, &user.Email)
-	return &user, err
+
+	err := r.db.QueryRow(ctx, query, id).Scan(
+		&user.ID,
+		&user.Username,
+		&user.Email,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
 }
