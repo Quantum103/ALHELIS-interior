@@ -3,6 +3,7 @@ package main
 import (
 	"auth-service/internal/config"
 	"auth-service/internal/database"
+	grpcclient "auth-service/internal/grpc"
 	"auth-service/internal/handlers"
 	"auth-service/internal/middleware"
 	repository "auth-service/internal/repo"
@@ -30,8 +31,21 @@ func main() {
 
 	cfg := config.Load()
 	userRepo := repository.NewUserRepository(db)
-	authSvc := service.NewAuthService(userRepo, string(cfg.JWTSecret))
+
+	userClient, err := grpcclient.NewClient("user-service:50053")
+	if err != nil {
+		log.Fatalf("Ошибка создания gRPC клиента user-service: %v", err)
+	}
+	defer userClient.Close()
+
+	authSvc := service.NewAuthService(
+		userRepo,
+		string(cfg.JWTSecret),
+		userClient,
+	)
+
 	srv := handlers.NewServer(authSvc)
+
 	jwtSecret := []byte(os.Getenv("JWT_SECRET"))
 	authMiddleware := middleware.JWTAuthMiddleware(jwtSecret)
 

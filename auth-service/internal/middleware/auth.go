@@ -3,6 +3,7 @@ package middleware
 import (
 	"context"
 	"errors"
+	"log"
 	"net/http"
 	"strings"
 
@@ -37,7 +38,12 @@ func JWTAuthMiddleware(jwtSecret []byte) func(http.Handler) http.Handler {
 			})
 
 			if err != nil || !token.Valid {
-				http.Error(w, `{"error": "Недействительный или просроченный токен"}`, http.StatusUnauthorized)
+				log.Printf("JWT ERROR: %v", err)
+				http.Error(
+					w,
+					`{"error":"Недействительный или просроченный токен"}`,
+					http.StatusUnauthorized,
+				)
 				return
 			}
 

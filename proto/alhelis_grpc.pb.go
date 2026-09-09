@@ -4,10 +4,11 @@
 // - protoc             v7.35.1
 // source: alhelis.proto
 
-package alhelis
+package proto
 
 import (
 	context "context"
+
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -19,12 +20,18 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AlhelisService_ListService_FullMethodName  = "/alhelis.AlhelisService/ListService"
-	AlhelisService_GetService_FullMethodName   = "/alhelis.AlhelisService/GetService"
-	AlhelisService_Register_FullMethodName     = "/alhelis.AlhelisService/Register"
-	AlhelisService_Login_FullMethodName        = "/alhelis.AlhelisService/Login"
-	AlhelisService_CreateOrder_FullMethodName  = "/alhelis.AlhelisService/CreateOrder"
-	AlhelisService_ListMyOrders_FullMethodName = "/alhelis.AlhelisService/ListMyOrders"
+	AlhelisService_ListService_FullMethodName    = "/alhelis.AlhelisService/ListService"
+	AlhelisService_GetService_FullMethodName     = "/alhelis.AlhelisService/GetService"
+	AlhelisService_Register_FullMethodName       = "/alhelis.AlhelisService/Register"
+	AlhelisService_Login_FullMethodName          = "/alhelis.AlhelisService/Login"
+	AlhelisService_CreateOrder_FullMethodName    = "/alhelis.AlhelisService/CreateOrder"
+	AlhelisService_ListMyOrders_FullMethodName   = "/alhelis.AlhelisService/ListMyOrders"
+	AlhelisService_GetProfile_FullMethodName     = "/alhelis.AlhelisService/GetProfile"
+	AlhelisService_CreateProfile_FullMethodName  = "/alhelis.AlhelisService/CreateProfile"
+	AlhelisService_UpdateProfile_FullMethodName  = "/alhelis.AlhelisService/UpdateProfile"
+	AlhelisService_ListFavorites_FullMethodName  = "/alhelis.AlhelisService/ListFavorites"
+	AlhelisService_AddFavorite_FullMethodName    = "/alhelis.AlhelisService/AddFavorite"
+	AlhelisService_RemoveFavorite_FullMethodName = "/alhelis.AlhelisService/RemoveFavorite"
 )
 
 // AlhelisServiceClient is the client API for AlhelisService service.
@@ -37,6 +44,12 @@ type AlhelisServiceClient interface {
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
 	CreateOrder(ctx context.Context, in *CreateOrderRequest, opts ...grpc.CallOption) (*CreateOrderResponse, error)
 	ListMyOrders(ctx context.Context, in *ListMyOrdersRequest, opts ...grpc.CallOption) (*ListMyOrdersResponse, error)
+	GetProfile(ctx context.Context, in *GetProfileRequest, opts ...grpc.CallOption) (*GetProfileResponse, error)
+	CreateProfile(ctx context.Context, in *CreateProfileRequest, opts ...grpc.CallOption) (*CreateProfileResponse, error)
+	UpdateProfile(ctx context.Context, in *UpdateProfileRequest, opts ...grpc.CallOption) (*UpdateProfileResponse, error)
+	ListFavorites(ctx context.Context, in *ListFavoritesRequest, opts ...grpc.CallOption) (*ListFavoritesResponse, error)
+	AddFavorite(ctx context.Context, in *AddFavoriteRequest, opts ...grpc.CallOption) (*AddFavoriteResponse, error)
+	RemoveFavorite(ctx context.Context, in *RemoveFavoriteRequest, opts ...grpc.CallOption) (*RemoveFavoriteResponse, error)
 }
 
 type alhelisServiceClient struct {
@@ -107,6 +120,66 @@ func (c *alhelisServiceClient) ListMyOrders(ctx context.Context, in *ListMyOrder
 	return out, nil
 }
 
+func (c *alhelisServiceClient) GetProfile(ctx context.Context, in *GetProfileRequest, opts ...grpc.CallOption) (*GetProfileResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetProfileResponse)
+	err := c.cc.Invoke(ctx, AlhelisService_GetProfile_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *alhelisServiceClient) CreateProfile(ctx context.Context, in *CreateProfileRequest, opts ...grpc.CallOption) (*CreateProfileResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateProfileResponse)
+	err := c.cc.Invoke(ctx, AlhelisService_CreateProfile_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *alhelisServiceClient) UpdateProfile(ctx context.Context, in *UpdateProfileRequest, opts ...grpc.CallOption) (*UpdateProfileResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateProfileResponse)
+	err := c.cc.Invoke(ctx, AlhelisService_UpdateProfile_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *alhelisServiceClient) ListFavorites(ctx context.Context, in *ListFavoritesRequest, opts ...grpc.CallOption) (*ListFavoritesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListFavoritesResponse)
+	err := c.cc.Invoke(ctx, AlhelisService_ListFavorites_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *alhelisServiceClient) AddFavorite(ctx context.Context, in *AddFavoriteRequest, opts ...grpc.CallOption) (*AddFavoriteResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AddFavoriteResponse)
+	err := c.cc.Invoke(ctx, AlhelisService_AddFavorite_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *alhelisServiceClient) RemoveFavorite(ctx context.Context, in *RemoveFavoriteRequest, opts ...grpc.CallOption) (*RemoveFavoriteResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RemoveFavoriteResponse)
+	err := c.cc.Invoke(ctx, AlhelisService_RemoveFavorite_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AlhelisServiceServer is the server API for AlhelisService service.
 // All implementations must embed UnimplementedAlhelisServiceServer
 // for forward compatibility.
@@ -117,6 +190,12 @@ type AlhelisServiceServer interface {
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
 	CreateOrder(context.Context, *CreateOrderRequest) (*CreateOrderResponse, error)
 	ListMyOrders(context.Context, *ListMyOrdersRequest) (*ListMyOrdersResponse, error)
+	GetProfile(context.Context, *GetProfileRequest) (*GetProfileResponse, error)
+	CreateProfile(context.Context, *CreateProfileRequest) (*CreateProfileResponse, error)
+	UpdateProfile(context.Context, *UpdateProfileRequest) (*UpdateProfileResponse, error)
+	ListFavorites(context.Context, *ListFavoritesRequest) (*ListFavoritesResponse, error)
+	AddFavorite(context.Context, *AddFavoriteRequest) (*AddFavoriteResponse, error)
+	RemoveFavorite(context.Context, *RemoveFavoriteRequest) (*RemoveFavoriteResponse, error)
 	mustEmbedUnimplementedAlhelisServiceServer()
 }
 
@@ -144,6 +223,24 @@ func (UnimplementedAlhelisServiceServer) CreateOrder(context.Context, *CreateOrd
 }
 func (UnimplementedAlhelisServiceServer) ListMyOrders(context.Context, *ListMyOrdersRequest) (*ListMyOrdersResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListMyOrders not implemented")
+}
+func (UnimplementedAlhelisServiceServer) GetProfile(context.Context, *GetProfileRequest) (*GetProfileResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetProfile not implemented")
+}
+func (UnimplementedAlhelisServiceServer) CreateProfile(context.Context, *CreateProfileRequest) (*CreateProfileResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method CreateProfile not implemented")
+}
+func (UnimplementedAlhelisServiceServer) UpdateProfile(context.Context, *UpdateProfileRequest) (*UpdateProfileResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateProfile not implemented")
+}
+func (UnimplementedAlhelisServiceServer) ListFavorites(context.Context, *ListFavoritesRequest) (*ListFavoritesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListFavorites not implemented")
+}
+func (UnimplementedAlhelisServiceServer) AddFavorite(context.Context, *AddFavoriteRequest) (*AddFavoriteResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method AddFavorite not implemented")
+}
+func (UnimplementedAlhelisServiceServer) RemoveFavorite(context.Context, *RemoveFavoriteRequest) (*RemoveFavoriteResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method RemoveFavorite not implemented")
 }
 func (UnimplementedAlhelisServiceServer) mustEmbedUnimplementedAlhelisServiceServer() {}
 func (UnimplementedAlhelisServiceServer) testEmbeddedByValue()                        {}
@@ -274,6 +371,114 @@ func _AlhelisService_ListMyOrders_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AlhelisService_GetProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetProfileRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AlhelisServiceServer).GetProfile(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AlhelisService_GetProfile_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AlhelisServiceServer).GetProfile(ctx, req.(*GetProfileRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AlhelisService_CreateProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateProfileRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AlhelisServiceServer).CreateProfile(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AlhelisService_CreateProfile_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AlhelisServiceServer).CreateProfile(ctx, req.(*CreateProfileRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AlhelisService_UpdateProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateProfileRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AlhelisServiceServer).UpdateProfile(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AlhelisService_UpdateProfile_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AlhelisServiceServer).UpdateProfile(ctx, req.(*UpdateProfileRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AlhelisService_ListFavorites_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListFavoritesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AlhelisServiceServer).ListFavorites(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AlhelisService_ListFavorites_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AlhelisServiceServer).ListFavorites(ctx, req.(*ListFavoritesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AlhelisService_AddFavorite_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddFavoriteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AlhelisServiceServer).AddFavorite(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AlhelisService_AddFavorite_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AlhelisServiceServer).AddFavorite(ctx, req.(*AddFavoriteRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AlhelisService_RemoveFavorite_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RemoveFavoriteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AlhelisServiceServer).RemoveFavorite(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AlhelisService_RemoveFavorite_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AlhelisServiceServer).RemoveFavorite(ctx, req.(*RemoveFavoriteRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AlhelisService_ServiceDesc is the grpc.ServiceDesc for AlhelisService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -304,6 +509,30 @@ var AlhelisService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListMyOrders",
 			Handler:    _AlhelisService_ListMyOrders_Handler,
+		},
+		{
+			MethodName: "GetProfile",
+			Handler:    _AlhelisService_GetProfile_Handler,
+		},
+		{
+			MethodName: "CreateProfile",
+			Handler:    _AlhelisService_CreateProfile_Handler,
+		},
+		{
+			MethodName: "UpdateProfile",
+			Handler:    _AlhelisService_UpdateProfile_Handler,
+		},
+		{
+			MethodName: "ListFavorites",
+			Handler:    _AlhelisService_ListFavorites_Handler,
+		},
+		{
+			MethodName: "AddFavorite",
+			Handler:    _AlhelisService_AddFavorite_Handler,
+		},
+		{
+			MethodName: "RemoveFavorite",
+			Handler:    _AlhelisService_RemoveFavorite_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

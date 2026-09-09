@@ -48,3 +48,15 @@ func (r *UserRepository) GetProfile(ctx context.Context, userID int64) (*models.
 
 	return &profile, nil
 }
+func (r *UserRepository) CreateProfile(ctx context.Context, userID int64) error {
+	_, err := r.db.Exec(
+		ctx,
+		`
+		INSERT INTO user_profiles (user_id, name, phone)
+		VALUES ($1, '', '')
+		`,
+		userID,
+	)
+
+	return err
+}

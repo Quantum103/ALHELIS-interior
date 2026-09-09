@@ -14,29 +14,57 @@ import (
 var ErrInvalidCredentials = errors.New("неверный логин или пароль")
 
 type UserRepository interface {
-	Create(ctx context.Context, username, email, passwordHash string) error
+	Create(ctx context.Context, username, email, passwordHash string) (int64, error)
 	GetByLogin(ctx context.Context, login string) (*models.UserResponse, string, error)
 	GetByID(ctx context.Context, id int64) (*models.UserResponse, error)
 }
 
+type ProfileCreator interface {
+	CreateProfile(ctx context.Context, userID int64) error
+}
+
 type AuthService struct {
-	repo      UserRepository
-	jwtSecret []byte
+	repo           UserRepository
+	jwtSecret      []byte
+	profileCreator ProfileCreator
 }
 
-func NewAuthService(repo UserRepository, secret string) *AuthService {
+func NewAuthService(
+	repo UserRepository,
+	secret string,
+	profileCreator ProfileCreator,
+) *AuthService {
 	return &AuthService{
-		repo:      repo,
-		jwtSecret: []byte(secret),
+		repo:           repo,
+		jwtSecret:      []byte(secret),
+		profileCreator: profileCreator,
 	}
 }
 
-func (s *AuthService) Register(ctx context.Context, req models.RegisterRequest) error {
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+func (s *AuthService) Register(ctx context.Context, req models.RegisterRequest) (int64, error) {
+	hashedPassword, err := bcrypt.GenerateFromPassword(
+		[]byte(req.Password),
+		bcrypt.DefaultCost,
+	)
 	if err != nil {
-		return err
+		return 0, err
 	}
-	return s.repo.Create(ctx, req.Username, req.Email, string(hashedPassword))
+
+	userID, err := s.repo.Create(
+		ctx,
+		req.Username,
+		req.Email,
+		string(hashedPassword),
+	)
+	if err != nil {
+		return 0, err
+	}
+
+	if err := s.profileCreator.CreateProfile(ctx, userID); err != nil {
+		return 0, err
+	}
+
+	return userID, nil
 }
 
 func (s *AuthService) Login(ctx context.Context, req models.LoginRequest) (string, *models.UserResponse, error) {

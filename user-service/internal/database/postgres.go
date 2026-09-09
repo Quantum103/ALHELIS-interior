@@ -50,38 +50,6 @@ func NewPostgresPool(cfg Config) (*pgxpool.Pool, error) {
 		pool.Close()
 		return nil, fmt.Errorf("unable to ping database: %w", err)
 	}
-	var currentDB, currentUser, profileName string
-
-	err = pool.QueryRow(
-		ctx,
-		`
-    SELECT current_database(), current_user
-    `,
-	).Scan(&currentDB, &currentUser)
-
-	if err != nil {
-		return nil, fmt.Errorf("diagnostic query: %w", err)
-	}
-
-	err = pool.QueryRow(
-		ctx,
-		`
-    SELECT name
-    FROM user_profiles
-    WHERE user_id = 1
-    `,
-	).Scan(&profileName)
-
-	if err != nil {
-		return nil, fmt.Errorf("diagnostic profile query: %w", err)
-	}
-
-	log.Printf(
-		"DB DIAGNOSTIC: database=%s user=%s profile=%s",
-		currentDB,
-		currentUser,
-		profileName,
-	)
 
 	log.Printf("Успешно подключились к PostgreSQL (%s)", cfg.DBName)
 

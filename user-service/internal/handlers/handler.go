@@ -57,3 +57,28 @@ func (h *UserHandler) ShowLK(w http.ResponseWriter, r *http.Request) {
 		)
 	}
 }
+func (h *UserHandler) CreateProfile(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, `{"error":"Method not allowed"}`, http.StatusMethodNotAllowed)
+		return
+	}
+
+	userID, ok := middleware.GetUserIDFromContext(r.Context())
+	if !ok {
+		http.Error(w, `{"error":"Пользователь не авторизован"}`, http.StatusUnauthorized)
+		return
+	}
+
+	if err := h.service.CreateProfile(r.Context(), userID); err != nil {
+		log.Printf("Ошибка создания профиля для userID=%d: %v", userID, err)
+		http.Error(w, `{"error":"Ошибка создания профиля"}`, http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": "Профиль создан",
+	})
+}

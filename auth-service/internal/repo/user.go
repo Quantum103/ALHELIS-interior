@@ -16,10 +16,28 @@ func NewUserRepository(db *pgxpool.Pool) *UserRepository {
 	return &UserRepository{db: db}
 }
 
-func (r *UserRepository) Create(ctx context.Context, username, email, passwordHash string) error {
-	query := `INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3)`
-	_, err := r.db.Exec(ctx, query, username, email, passwordHash)
-	return err
+func (r *UserRepository) Create(ctx context.Context, username, email, passwordHash string) (int64, error) {
+	query := `
+			INSERT INTO users (username, email, password_hash)
+			VALUES ($1, $2, $3)
+			RETURNING id
+		`
+
+	var userID int64
+
+	err := r.db.QueryRow(
+		ctx,
+		query,
+		username,
+		email,
+		passwordHash,
+	).Scan(&userID)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return userID, nil
 }
 
 func (r *UserRepository) GetByLogin(ctx context.Context, login string) (*models.UserResponse, string, error) {

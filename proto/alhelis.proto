@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package alhelis;
 
-option go_package = "auth-servi/proto";
+option go_package = "amelli/proto";
 
 service AlhelisService {
     rpc ListService(ListServiceRequest) returns (ListServiceResponse);
@@ -12,6 +12,7 @@ service AlhelisService {
     rpc CreateOrder(CreateOrderRequest) returns (CreateOrderResponse);
     rpc ListMyOrders(ListMyOrdersRequest) returns (ListMyOrdersResponse);
     rpc GetProfile(GetProfileRequest) returns (GetProfileResponse);
+    rpc CreateProfile(CreateProfileRequest) returns (CreateProfileResponse);
     rpc UpdateProfile(UpdateProfileRequest) returns (UpdateProfileResponse);
     rpc ListFavorites(ListFavoritesRequest) returns (ListFavoritesResponse);
     rpc AddFavorite(AddFavoriteRequest) returns (AddFavoriteResponse);
@@ -131,5 +132,16 @@ message RemoveFavoriteRequest {
 }
 
 message RemoveFavoriteResponse {
+    string message = 1;
+}
+
+
+message CreateProfileRequest {
+    string user_id = 1;
+    string name = 2;
+    string phone = 3;
+}
+
+message CreateProfileResponse {
     string message = 1;
 }

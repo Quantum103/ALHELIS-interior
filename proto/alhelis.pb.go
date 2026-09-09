@@ -4,7 +4,7 @@
 // 	protoc        v7.35.1
 // source: alhelis.proto
 
-package alhelis
+package proto
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -774,6 +774,602 @@ func (x *ListMyOrdersResponse) GetOrders() []*Order {
 	return nil
 }
 
+type GetProfileRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetProfileRequest) Reset() {
+	*x = GetProfileRequest{}
+	mi := &file_alhelis_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetProfileRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetProfileRequest) ProtoMessage() {}
+
+func (x *GetProfileRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_alhelis_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetProfileRequest.ProtoReflect.Descriptor instead.
+func (*GetProfileRequest) Descriptor() ([]byte, []int) {
+	return file_alhelis_proto_rawDescGZIP(), []int{14}
+}
+
+type GetProfileResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Phone         string                 `protobuf:"bytes,3,opt,name=phone,proto3" json:"phone,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetProfileResponse) Reset() {
+	*x = GetProfileResponse{}
+	mi := &file_alhelis_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetProfileResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetProfileResponse) ProtoMessage() {}
+
+func (x *GetProfileResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_alhelis_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetProfileResponse.ProtoReflect.Descriptor instead.
+func (*GetProfileResponse) Descriptor() ([]byte, []int) {
+	return file_alhelis_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *GetProfileResponse) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *GetProfileResponse) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *GetProfileResponse) GetPhone() string {
+	if x != nil {
+		return x.Phone
+	}
+	return ""
+}
+
+type UpdateProfileRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Phone         string                 `protobuf:"bytes,2,opt,name=phone,proto3" json:"phone,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateProfileRequest) Reset() {
+	*x = UpdateProfileRequest{}
+	mi := &file_alhelis_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateProfileRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateProfileRequest) ProtoMessage() {}
+
+func (x *UpdateProfileRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_alhelis_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateProfileRequest.ProtoReflect.Descriptor instead.
+func (*UpdateProfileRequest) Descriptor() ([]byte, []int) {
+	return file_alhelis_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *UpdateProfileRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *UpdateProfileRequest) GetPhone() string {
+	if x != nil {
+		return x.Phone
+	}
+	return ""
+}
+
+type UpdateProfileResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateProfileResponse) Reset() {
+	*x = UpdateProfileResponse{}
+	mi := &file_alhelis_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateProfileResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateProfileResponse) ProtoMessage() {}
+
+func (x *UpdateProfileResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_alhelis_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateProfileResponse.ProtoReflect.Descriptor instead.
+func (*UpdateProfileResponse) Descriptor() ([]byte, []int) {
+	return file_alhelis_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *UpdateProfileResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+type Favorite struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ServiceId     string                 `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Favorite) Reset() {
+	*x = Favorite{}
+	mi := &file_alhelis_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Favorite) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Favorite) ProtoMessage() {}
+
+func (x *Favorite) ProtoReflect() protoreflect.Message {
+	mi := &file_alhelis_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Favorite.ProtoReflect.Descriptor instead.
+func (*Favorite) Descriptor() ([]byte, []int) {
+	return file_alhelis_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *Favorite) GetServiceId() string {
+	if x != nil {
+		return x.ServiceId
+	}
+	return ""
+}
+
+type ListFavoritesRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListFavoritesRequest) Reset() {
+	*x = ListFavoritesRequest{}
+	mi := &file_alhelis_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListFavoritesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListFavoritesRequest) ProtoMessage() {}
+
+func (x *ListFavoritesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_alhelis_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListFavoritesRequest.ProtoReflect.Descriptor instead.
+func (*ListFavoritesRequest) Descriptor() ([]byte, []int) {
+	return file_alhelis_proto_rawDescGZIP(), []int{19}
+}
+
+type ListFavoritesResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Favorites     []*Favorite            `protobuf:"bytes,1,rep,name=favorites,proto3" json:"favorites,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListFavoritesResponse) Reset() {
+	*x = ListFavoritesResponse{}
+	mi := &file_alhelis_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListFavoritesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListFavoritesResponse) ProtoMessage() {}
+
+func (x *ListFavoritesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_alhelis_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListFavoritesResponse.ProtoReflect.Descriptor instead.
+func (*ListFavoritesResponse) Descriptor() ([]byte, []int) {
+	return file_alhelis_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *ListFavoritesResponse) GetFavorites() []*Favorite {
+	if x != nil {
+		return x.Favorites
+	}
+	return nil
+}
+
+type AddFavoriteRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ServiceId     string                 `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AddFavoriteRequest) Reset() {
+	*x = AddFavoriteRequest{}
+	mi := &file_alhelis_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AddFavoriteRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AddFavoriteRequest) ProtoMessage() {}
+
+func (x *AddFavoriteRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_alhelis_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AddFavoriteRequest.ProtoReflect.Descriptor instead.
+func (*AddFavoriteRequest) Descriptor() ([]byte, []int) {
+	return file_alhelis_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *AddFavoriteRequest) GetServiceId() string {
+	if x != nil {
+		return x.ServiceId
+	}
+	return ""
+}
+
+type AddFavoriteResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AddFavoriteResponse) Reset() {
+	*x = AddFavoriteResponse{}
+	mi := &file_alhelis_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AddFavoriteResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AddFavoriteResponse) ProtoMessage() {}
+
+func (x *AddFavoriteResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_alhelis_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AddFavoriteResponse.ProtoReflect.Descriptor instead.
+func (*AddFavoriteResponse) Descriptor() ([]byte, []int) {
+	return file_alhelis_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *AddFavoriteResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+type RemoveFavoriteRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ServiceId     string                 `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RemoveFavoriteRequest) Reset() {
+	*x = RemoveFavoriteRequest{}
+	mi := &file_alhelis_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RemoveFavoriteRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RemoveFavoriteRequest) ProtoMessage() {}
+
+func (x *RemoveFavoriteRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_alhelis_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RemoveFavoriteRequest.ProtoReflect.Descriptor instead.
+func (*RemoveFavoriteRequest) Descriptor() ([]byte, []int) {
+	return file_alhelis_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *RemoveFavoriteRequest) GetServiceId() string {
+	if x != nil {
+		return x.ServiceId
+	}
+	return ""
+}
+
+type RemoveFavoriteResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RemoveFavoriteResponse) Reset() {
+	*x = RemoveFavoriteResponse{}
+	mi := &file_alhelis_proto_msgTypes[24]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RemoveFavoriteResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RemoveFavoriteResponse) ProtoMessage() {}
+
+func (x *RemoveFavoriteResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_alhelis_proto_msgTypes[24]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RemoveFavoriteResponse.ProtoReflect.Descriptor instead.
+func (*RemoveFavoriteResponse) Descriptor() ([]byte, []int) {
+	return file_alhelis_proto_rawDescGZIP(), []int{24}
+}
+
+func (x *RemoveFavoriteResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+type CreateProfileRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Phone         string                 `protobuf:"bytes,3,opt,name=phone,proto3" json:"phone,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateProfileRequest) Reset() {
+	*x = CreateProfileRequest{}
+	mi := &file_alhelis_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateProfileRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateProfileRequest) ProtoMessage() {}
+
+func (x *CreateProfileRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_alhelis_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateProfileRequest.ProtoReflect.Descriptor instead.
+func (*CreateProfileRequest) Descriptor() ([]byte, []int) {
+	return file_alhelis_proto_rawDescGZIP(), []int{25}
+}
+
+func (x *CreateProfileRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *CreateProfileRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *CreateProfileRequest) GetPhone() string {
+	if x != nil {
+		return x.Phone
+	}
+	return ""
+}
+
+type CreateProfileResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateProfileResponse) Reset() {
+	*x = CreateProfileResponse{}
+	mi := &file_alhelis_proto_msgTypes[26]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateProfileResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateProfileResponse) ProtoMessage() {}
+
+func (x *CreateProfileResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_alhelis_proto_msgTypes[26]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateProfileResponse.ProtoReflect.Descriptor instead.
+func (*CreateProfileResponse) Descriptor() ([]byte, []int) {
+	return file_alhelis_proto_rawDescGZIP(), []int{26}
+}
+
+func (x *CreateProfileResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
 var File_alhelis_proto protoreflect.FileDescriptor
 
 const file_alhelis_proto_rawDesc = "" +
@@ -829,7 +1425,39 @@ const file_alhelis_proto_rawDesc = "" +
 	"created_at\x18\x05 \x01(\x03R\tcreatedAt\"\x15\n" +
 	"\x13ListMyOrdersRequest\">\n" +
 	"\x14ListMyOrdersResponse\x12&\n" +
-	"\x06orders\x18\x01 \x03(\v2\x0e.alhelis.OrderR\x06orders2\xb1\x03\n" +
+	"\x06orders\x18\x01 \x03(\v2\x0e.alhelis.OrderR\x06orders\"\x13\n" +
+	"\x11GetProfileRequest\"W\n" +
+	"\x12GetProfileResponse\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x14\n" +
+	"\x05phone\x18\x03 \x01(\tR\x05phone\"@\n" +
+	"\x14UpdateProfileRequest\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
+	"\x05phone\x18\x02 \x01(\tR\x05phone\"1\n" +
+	"\x15UpdateProfileResponse\x12\x18\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage\")\n" +
+	"\bFavorite\x12\x1d\n" +
+	"\n" +
+	"service_id\x18\x01 \x01(\tR\tserviceId\"\x16\n" +
+	"\x14ListFavoritesRequest\"H\n" +
+	"\x15ListFavoritesResponse\x12/\n" +
+	"\tfavorites\x18\x01 \x03(\v2\x11.alhelis.FavoriteR\tfavorites\"3\n" +
+	"\x12AddFavoriteRequest\x12\x1d\n" +
+	"\n" +
+	"service_id\x18\x01 \x01(\tR\tserviceId\"/\n" +
+	"\x13AddFavoriteResponse\x12\x18\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage\"6\n" +
+	"\x15RemoveFavoriteRequest\x12\x1d\n" +
+	"\n" +
+	"service_id\x18\x01 \x01(\tR\tserviceId\"2\n" +
+	"\x16RemoveFavoriteResponse\x12\x18\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage\"Y\n" +
+	"\x14CreateProfileRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x14\n" +
+	"\x05phone\x18\x03 \x01(\tR\x05phone\"1\n" +
+	"\x15CreateProfileResponse\x12\x18\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage2\x85\a\n" +
 	"\x0eAlhelisService\x12H\n" +
 	"\vListService\x12\x1b.alhelis.ListServiceRequest\x1a\x1c.alhelis.ListServiceResponse\x12E\n" +
 	"\n" +
@@ -837,7 +1465,14 @@ const file_alhelis_proto_rawDesc = "" +
 	"\bRegister\x12\x18.alhelis.RegisterRequest\x1a\x19.alhelis.RegisterResponse\x126\n" +
 	"\x05Login\x12\x15.alhelis.LoginRequest\x1a\x16.alhelis.LoginResponse\x12H\n" +
 	"\vCreateOrder\x12\x1b.alhelis.CreateOrderRequest\x1a\x1c.alhelis.CreateOrderResponse\x12K\n" +
-	"\fListMyOrders\x12\x1c.alhelis.ListMyOrdersRequest\x1a\x1d.alhelis.ListMyOrdersResponseB\x16Z\x14amelli/proto;alhelisb\x06proto3"
+	"\fListMyOrders\x12\x1c.alhelis.ListMyOrdersRequest\x1a\x1d.alhelis.ListMyOrdersResponse\x12E\n" +
+	"\n" +
+	"GetProfile\x12\x1a.alhelis.GetProfileRequest\x1a\x1b.alhelis.GetProfileResponse\x12N\n" +
+	"\rCreateProfile\x12\x1d.alhelis.CreateProfileRequest\x1a\x1e.alhelis.CreateProfileResponse\x12N\n" +
+	"\rUpdateProfile\x12\x1d.alhelis.UpdateProfileRequest\x1a\x1e.alhelis.UpdateProfileResponse\x12N\n" +
+	"\rListFavorites\x12\x1d.alhelis.ListFavoritesRequest\x1a\x1e.alhelis.ListFavoritesResponse\x12H\n" +
+	"\vAddFavorite\x12\x1b.alhelis.AddFavoriteRequest\x1a\x1c.alhelis.AddFavoriteResponse\x12Q\n" +
+	"\x0eRemoveFavorite\x12\x1e.alhelis.RemoveFavoriteRequest\x1a\x1f.alhelis.RemoveFavoriteResponseB\x0eZ\famelli/protob\x06proto3"
 
 var (
 	file_alhelis_proto_rawDescOnce sync.Once
@@ -851,45 +1486,71 @@ func file_alhelis_proto_rawDescGZIP() []byte {
 	return file_alhelis_proto_rawDescData
 }
 
-var file_alhelis_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
+var file_alhelis_proto_msgTypes = make([]protoimpl.MessageInfo, 27)
 var file_alhelis_proto_goTypes = []any{
-	(*Service)(nil),              // 0: alhelis.Service
-	(*ListServiceRequest)(nil),   // 1: alhelis.ListServiceRequest
-	(*ListServiceResponse)(nil),  // 2: alhelis.ListServiceResponse
-	(*GetServiceRequest)(nil),    // 3: alhelis.GetServiceRequest
-	(*GetServiceResponse)(nil),   // 4: alhelis.GetServiceResponse
-	(*RegisterRequest)(nil),      // 5: alhelis.RegisterRequest
-	(*RegisterResponse)(nil),     // 6: alhelis.RegisterResponse
-	(*LoginRequest)(nil),         // 7: alhelis.LoginRequest
-	(*LoginResponse)(nil),        // 8: alhelis.LoginResponse
-	(*CreateOrderRequest)(nil),   // 9: alhelis.CreateOrderRequest
-	(*CreateOrderResponse)(nil),  // 10: alhelis.CreateOrderResponse
-	(*Order)(nil),                // 11: alhelis.Order
-	(*ListMyOrdersRequest)(nil),  // 12: alhelis.ListMyOrdersRequest
-	(*ListMyOrdersResponse)(nil), // 13: alhelis.ListMyOrdersResponse
+	(*Service)(nil),                // 0: alhelis.Service
+	(*ListServiceRequest)(nil),     // 1: alhelis.ListServiceRequest
+	(*ListServiceResponse)(nil),    // 2: alhelis.ListServiceResponse
+	(*GetServiceRequest)(nil),      // 3: alhelis.GetServiceRequest
+	(*GetServiceResponse)(nil),     // 4: alhelis.GetServiceResponse
+	(*RegisterRequest)(nil),        // 5: alhelis.RegisterRequest
+	(*RegisterResponse)(nil),       // 6: alhelis.RegisterResponse
+	(*LoginRequest)(nil),           // 7: alhelis.LoginRequest
+	(*LoginResponse)(nil),          // 8: alhelis.LoginResponse
+	(*CreateOrderRequest)(nil),     // 9: alhelis.CreateOrderRequest
+	(*CreateOrderResponse)(nil),    // 10: alhelis.CreateOrderResponse
+	(*Order)(nil),                  // 11: alhelis.Order
+	(*ListMyOrdersRequest)(nil),    // 12: alhelis.ListMyOrdersRequest
+	(*ListMyOrdersResponse)(nil),   // 13: alhelis.ListMyOrdersResponse
+	(*GetProfileRequest)(nil),      // 14: alhelis.GetProfileRequest
+	(*GetProfileResponse)(nil),     // 15: alhelis.GetProfileResponse
+	(*UpdateProfileRequest)(nil),   // 16: alhelis.UpdateProfileRequest
+	(*UpdateProfileResponse)(nil),  // 17: alhelis.UpdateProfileResponse
+	(*Favorite)(nil),               // 18: alhelis.Favorite
+	(*ListFavoritesRequest)(nil),   // 19: alhelis.ListFavoritesRequest
+	(*ListFavoritesResponse)(nil),  // 20: alhelis.ListFavoritesResponse
+	(*AddFavoriteRequest)(nil),     // 21: alhelis.AddFavoriteRequest
+	(*AddFavoriteResponse)(nil),    // 22: alhelis.AddFavoriteResponse
+	(*RemoveFavoriteRequest)(nil),  // 23: alhelis.RemoveFavoriteRequest
+	(*RemoveFavoriteResponse)(nil), // 24: alhelis.RemoveFavoriteResponse
+	(*CreateProfileRequest)(nil),   // 25: alhelis.CreateProfileRequest
+	(*CreateProfileResponse)(nil),  // 26: alhelis.CreateProfileResponse
 }
 var file_alhelis_proto_depIdxs = []int32{
 	0,  // 0: alhelis.ListServiceResponse.services:type_name -> alhelis.Service
 	0,  // 1: alhelis.GetServiceResponse.service:type_name -> alhelis.Service
 	11, // 2: alhelis.CreateOrderResponse.order:type_name -> alhelis.Order
 	11, // 3: alhelis.ListMyOrdersResponse.orders:type_name -> alhelis.Order
-	1,  // 4: alhelis.AlhelisService.ListService:input_type -> alhelis.ListServiceRequest
-	3,  // 5: alhelis.AlhelisService.GetService:input_type -> alhelis.GetServiceRequest
-	5,  // 6: alhelis.AlhelisService.Register:input_type -> alhelis.RegisterRequest
-	7,  // 7: alhelis.AlhelisService.Login:input_type -> alhelis.LoginRequest
-	9,  // 8: alhelis.AlhelisService.CreateOrder:input_type -> alhelis.CreateOrderRequest
-	12, // 9: alhelis.AlhelisService.ListMyOrders:input_type -> alhelis.ListMyOrdersRequest
-	2,  // 10: alhelis.AlhelisService.ListService:output_type -> alhelis.ListServiceResponse
-	4,  // 11: alhelis.AlhelisService.GetService:output_type -> alhelis.GetServiceResponse
-	6,  // 12: alhelis.AlhelisService.Register:output_type -> alhelis.RegisterResponse
-	8,  // 13: alhelis.AlhelisService.Login:output_type -> alhelis.LoginResponse
-	10, // 14: alhelis.AlhelisService.CreateOrder:output_type -> alhelis.CreateOrderResponse
-	13, // 15: alhelis.AlhelisService.ListMyOrders:output_type -> alhelis.ListMyOrdersResponse
-	10, // [10:16] is the sub-list for method output_type
-	4,  // [4:10] is the sub-list for method input_type
-	4,  // [4:4] is the sub-list for extension type_name
-	4,  // [4:4] is the sub-list for extension extendee
-	0,  // [0:4] is the sub-list for field type_name
+	18, // 4: alhelis.ListFavoritesResponse.favorites:type_name -> alhelis.Favorite
+	1,  // 5: alhelis.AlhelisService.ListService:input_type -> alhelis.ListServiceRequest
+	3,  // 6: alhelis.AlhelisService.GetService:input_type -> alhelis.GetServiceRequest
+	5,  // 7: alhelis.AlhelisService.Register:input_type -> alhelis.RegisterRequest
+	7,  // 8: alhelis.AlhelisService.Login:input_type -> alhelis.LoginRequest
+	9,  // 9: alhelis.AlhelisService.CreateOrder:input_type -> alhelis.CreateOrderRequest
+	12, // 10: alhelis.AlhelisService.ListMyOrders:input_type -> alhelis.ListMyOrdersRequest
+	14, // 11: alhelis.AlhelisService.GetProfile:input_type -> alhelis.GetProfileRequest
+	25, // 12: alhelis.AlhelisService.CreateProfile:input_type -> alhelis.CreateProfileRequest
+	16, // 13: alhelis.AlhelisService.UpdateProfile:input_type -> alhelis.UpdateProfileRequest
+	19, // 14: alhelis.AlhelisService.ListFavorites:input_type -> alhelis.ListFavoritesRequest
+	21, // 15: alhelis.AlhelisService.AddFavorite:input_type -> alhelis.AddFavoriteRequest
+	23, // 16: alhelis.AlhelisService.RemoveFavorite:input_type -> alhelis.RemoveFavoriteRequest
+	2,  // 17: alhelis.AlhelisService.ListService:output_type -> alhelis.ListServiceResponse
+	4,  // 18: alhelis.AlhelisService.GetService:output_type -> alhelis.GetServiceResponse
+	6,  // 19: alhelis.AlhelisService.Register:output_type -> alhelis.RegisterResponse
+	8,  // 20: alhelis.AlhelisService.Login:output_type -> alhelis.LoginResponse
+	10, // 21: alhelis.AlhelisService.CreateOrder:output_type -> alhelis.CreateOrderResponse
+	13, // 22: alhelis.AlhelisService.ListMyOrders:output_type -> alhelis.ListMyOrdersResponse
+	15, // 23: alhelis.AlhelisService.GetProfile:output_type -> alhelis.GetProfileResponse
+	26, // 24: alhelis.AlhelisService.CreateProfile:output_type -> alhelis.CreateProfileResponse
+	17, // 25: alhelis.AlhelisService.UpdateProfile:output_type -> alhelis.UpdateProfileResponse
+	20, // 26: alhelis.AlhelisService.ListFavorites:output_type -> alhelis.ListFavoritesResponse
+	22, // 27: alhelis.AlhelisService.AddFavorite:output_type -> alhelis.AddFavoriteResponse
+	24, // 28: alhelis.AlhelisService.RemoveFavorite:output_type -> alhelis.RemoveFavoriteResponse
+	17, // [17:29] is the sub-list for method output_type
+	5,  // [5:17] is the sub-list for method input_type
+	5,  // [5:5] is the sub-list for extension type_name
+	5,  // [5:5] is the sub-list for extension extendee
+	0,  // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_alhelis_proto_init() }
@@ -903,7 +1564,7 @@ func file_alhelis_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_alhelis_proto_rawDesc), len(file_alhelis_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   14,
+			NumMessages:   27,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

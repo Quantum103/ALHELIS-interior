@@ -23,3 +23,10 @@ func (s *UserService) GetProfile(
 ) (*models.UserProfile, error) {
 	return s.repo.GetProfile(ctx, userID)
 }
+
+func (s *UserService) CreateProfile(
+	ctx context.Context,
+	userID int64,
+) error {
+	return s.repo.CreateProfile(ctx, userID)
+}

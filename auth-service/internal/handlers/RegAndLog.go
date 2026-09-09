@@ -15,7 +15,7 @@ import (
 )
 
 type AuthServiceInterface interface {
-	Register(ctx context.Context, req models.RegisterRequest) error
+	Register(ctx context.Context, req models.RegisterRequest) (int64, error)
 	Login(ctx context.Context, req models.LoginRequest) (string, *models.UserResponse, error)
 	GetMe(ctx context.Context, id int64) (*models.UserResponse, error)
 }
@@ -47,18 +47,22 @@ func (s *Server) HandleRegister(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, http.StatusBadRequest, "Неверный формат данных")
 		return
 	}
-	log.Printf("REGISTER: username=%q email=%q", req.Username, req.Email)
-
 	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
-	if err := s.authService.Register(ctx, req); err != nil {
+
+	userID, err := s.authService.Register(ctx, req)
+	if err != nil {
 		log.Printf("ОШИБКА РЕГИСТРАЦИИ: %v", err)
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
+	log.Printf("REGISTER: создан пользователь с ID=%d", userID)
+
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(map[string]string{"message": "Аккаунт успешно создан"})
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": "Аккаунт успешно создан",
+	})
 }
 
 func (s *Server) HandleLogin(w http.ResponseWriter, r *http.Request) {
