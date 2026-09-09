@@ -8,19 +8,23 @@ import (
 	"user-service/internal/models"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
-type UserRepository struct {
-	db *pgxpool.Pool
+type DB interface {
+	QueryRow(ctx context.Context, sql string, args ...interface{}) pgx.Row
+	Exec(ctx context.Context, sql string, args ...interface{}) (pgconn.CommandTag, error)
 }
 
-func NewUserRepository(db *pgxpool.Pool) *UserRepository {
+type UserRepository struct {
+	db DB
+}
+
+func NewUserRepository(db DB) *UserRepository {
 	return &UserRepository{
 		db: db,
 	}
 }
-
 func (r *UserRepository) GetProfile(ctx context.Context, userID int64) (*models.UserProfile, error) {
 	var profile models.UserProfile
 

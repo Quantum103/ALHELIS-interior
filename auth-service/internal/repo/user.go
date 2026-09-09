@@ -5,14 +5,18 @@ import (
 
 	"auth-service/internal/models"
 
-	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v5"
 )
 
-type UserRepository struct {
-	db *pgxpool.Pool
+type DB interface {
+	QueryRow(ctx context.Context, sql string, args ...interface{}) pgx.Row
 }
 
-func NewUserRepository(db *pgxpool.Pool) *UserRepository {
+type UserRepository struct {
+	db DB
+}
+
+func NewUserRepository(db DB) *UserRepository {
 	return &UserRepository{db: db}
 }
 

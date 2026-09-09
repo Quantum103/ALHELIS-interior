@@ -1,19 +1,25 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"log"
 	"net/http"
 
 	"user-service/internal/middleware"
-	"user-service/internal/service"
+	"user-service/internal/models"
 )
 
-type UserHandler struct {
-	service *service.UserService
+type UserService interface {
+	GetProfile(ctx context.Context, userID int64) (*models.UserProfile, error)
+	CreateProfile(ctx context.Context, userID int64) error
 }
 
-func NewUserHandler(service *service.UserService) *UserHandler {
+type UserHandler struct {
+	service UserService
+}
+
+func NewUserHandler(service UserService) *UserHandler {
 	return &UserHandler{
 		service: service,
 	}

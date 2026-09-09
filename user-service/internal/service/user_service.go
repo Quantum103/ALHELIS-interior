@@ -4,14 +4,18 @@ import (
 	"context"
 
 	"user-service/internal/models"
-	"user-service/internal/repo"
 )
 
-type UserService struct {
-	repo *repo.UserRepository
+type UserRepository interface {
+	GetProfile(ctx context.Context, userID int64) (*models.UserProfile, error)
+	CreateProfile(ctx context.Context, userID int64) error
 }
 
-func NewUserService(repo *repo.UserRepository) *UserService {
+type UserService struct {
+	repo UserRepository
+}
+
+func NewUserService(repo UserRepository) *UserService {
 	return &UserService{
 		repo: repo,
 	}
