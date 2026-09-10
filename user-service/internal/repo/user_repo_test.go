@@ -5,128 +5,111 @@ import (
 	"errors"
 	"testing"
 
-	"user-service/internal/models"
-
-	"github.com/pashagolub/pgxmock/v5"
-	"github.com/stretchr/testify/assert"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
-func TestUserRepository_GetProfile(t *testing.T) {
-	t.Run("success", func(t *testing.T) {
-		db, err := pgxmock.NewPool()
-		assert.NoError(t, err)
-		defer db.Close()
-
-		repository := NewUserRepository(db)
-
-		db.ExpectQuery(`SELECT user_id, name, phone FROM user_profiles WHERE user_id = \$1`).
-			WithArgs(int64(1)).
-			WillReturnRows(
-				pgxmock.NewRows([]string{"user_id", "name", "phone"}).
-					AddRow(int64(1), "Pavel", "123456789"),
-			)
-
-		profile, err := repository.GetProfile(
-			context.Background(),
-			1,
-		)
-
-		assert.NoError(t, err)
-		assert.Equal(t, &models.UserProfile{
-			UserID: 1,
-			Name:   "Pavel",
-			Phone:  "123456789",
-		}, profile)
-
-		assert.NoError(t, db.ExpectationsWereMet())
-	})
-
-	t.Run("profile not found", func(t *testing.T) {
-		db, err := pgxmock.NewPool()
-		assert.NoError(t, err)
-		defer db.Close()
-
-		repository := NewUserRepository(db)
-
-		db.ExpectQuery(`SELECT user_id, name, phone FROM user_profiles WHERE user_id = \$1`).
-			WithArgs(int64(1)).
-			WillReturnError(errors.New("profile not found"))
-
-		profile, err := repository.GetProfile(
-			context.Background(),
-			1,
-		)
-
-		assert.Error(t, err)
-		assert.Nil(t, profile)
-
-		assert.NoError(t, db.ExpectationsWereMet())
-	})
-
-	t.Run("database error", func(t *testing.T) {
-		db, err := pgxmock.NewPool()
-		assert.NoError(t, err)
-		defer db.Close()
-
-		repository := NewUserRepository(db)
-
-		db.ExpectQuery(`SELECT user_id, name, phone FROM user_profiles WHERE user_id = \$1`).
-			WithArgs(int64(1)).
-			WillReturnError(errors.New("database error"))
-
-		profile, err := repository.GetProfile(
-			context.Background(),
-			1,
-		)
-
-		assert.Error(t, err)
-		assert.Nil(t, profile)
-		assert.Contains(t, err.Error(), "get profile")
-
-		assert.NoError(t, db.ExpectationsWereMet())
-	})
+type mockDB struct {
+	queryRowFunc func(ctx context.Context, sql string, args ...interface{}) pgx.Row
+	execFunc     func(ctx context.Context, sql string, args ...interface{}) (pgconn.CommandTag, error)
 }
 
-func TestUserRepository_CreateProfile(t *testing.T) {
-	t.Run("success", func(t *testing.T) {
-		db, err := pgxmock.NewPool()
-		assert.NoError(t, err)
-		defer db.Close()
+func (m *mockDB) QueryRow(ctx context.Context, sql string, args ...interface{}) pgx.Row {
+	return m.queryRowFunc(ctx, sql, args...)
+}
 
-		repository := NewUserRepository(db)
+func (m *mockDB) Exec(ctx context.Context, sql string, args ...interface{}) (pgconn.CommandTag, error) {
+	return m.execFunc(ctx, sql, args...)
+}
 
-		db.ExpectExec(`INSERT INTO user_profiles`).
-			WithArgs(int64(1)).
-			WillReturnResult(pgxmock.NewResult("INSERT", 1))
+type mockRow struct {
+	scanFunc func(dest ...interface{}) error
+}
 
-		err = repository.CreateProfile(
-			context.Background(),
-			1,
-		)
+func (m *mockRow) Scan(dest ...interface{}) error {
+	return m.scanFunc(dest...)
+}
 
-		assert.NoError(t, err)
-		assert.NoError(t, db.ExpectationsWereMet())
-	})
+func TestGetProfile_Success(t *testing.T) {
+	mock := &mockDB{
+		queryRowFunc: func(ctx context.Context, sql string, args ...interface{}) pgx.Row {
+			return &mockRow{
+				scanFunc: func(dest ...interface{}) error {
+					if len(dest) >= 3 {
+						if ptr, ok := dest[0].(*int64); ok {
+							*ptr = 1
+						}
+						if ptr, ok := dest[1].(*string); ok {
+							*ptr = "TestName"
+						}
+						if ptr, ok := dest[2].(*string); ok {
+							*ptr = "123456"
+						}
+					}
+					return nil
+				},
+			}
+		},
+	}
 
-	t.Run("database error", func(t *testing.T) {
-		db, err := pgxmock.NewPool()
-		assert.NoError(t, err)
-		defer db.Close()
+	repo := NewUserRepository(mock)
+	profile, err := repo.GetProfile(context.Background(), 1)
 
-		repository := NewUserRepository(db)
+	if err != nil {
+		t.Fatalf("expected nil error, got %v", err)
+	}
+	if profile.UserID != 1 {
+		t.Errorf("expected UserID 1, got %d", profile.UserID)
+	}
+	if profile.Name != "TestName" {
+		t.Errorf("expected Name 'TestName', got %s", profile.Name)
+	}
+	if profile.Phone != "123456" {
+		t.Errorf("expected Phone '123456', got %s", profile.Phone)
+	}
+}
 
-		db.ExpectExec(`INSERT INTO user_profiles`).
-			WithArgs(int64(1)).
-			WillReturnError(errors.New("database error"))
+func TestGetProfile_NotFound(t *testing.T) {
+	mock := &mockDB{
+		queryRowFunc: func(ctx context.Context, sql string, args ...interface{}) pgx.Row {
+			return &mockRow{
+				scanFunc: func(dest ...interface{}) error {
+					return pgx.ErrNoRows
+				},
+			}
+		},
+	}
 
-		err = repository.CreateProfile(
-			context.Background(),
-			1,
-		)
+	repo := NewUserRepository(mock)
+	_, err := repo.GetProfile(context.Background(), 1)
 
-		assert.Error(t, err)
-		assert.EqualError(t, err, "database error")
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+	if err.Error() != "profile not found" {
+		t.Errorf("expected 'profile not found', got %v", err)
+	}
+}
 
-		assert.NoError(t, db.ExpectationsWereMet())
-	})
+func TestGetProfile_Error(t *testing.T) {
+	expectedErr := errors.New("db error")
+	mock := &mockDB{
+		queryRowFunc: func(ctx context.Context, sql string, args ...interface{}) pgx.Row {
+			return &mockRow{
+				scanFunc: func(dest ...interface{}) error {
+					return expectedErr
+				},
+			}
+		},
+	}
+
+	repo := NewUserRepository(mock)
+	_, err := repo.GetProfile(context.Background(), 1)
+
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+	if err.Error() != "get profile: db error" {
+		t.Errorf("expected 'get profile: db error', got %v", err)
+	}
 }

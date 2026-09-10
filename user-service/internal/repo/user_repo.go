@@ -52,15 +52,30 @@ func (r *UserRepository) GetProfile(ctx context.Context, userID int64) (*models.
 
 	return &profile, nil
 }
-func (r *UserRepository) CreateProfile(ctx context.Context, userID int64) error {
+func (r *UserRepository) CreateProfile(ctx context.Context, userID int64, name string, phone string) error {
+	query := `
+		INSERT INTO user_profiles (
+			user_id,
+			name,
+			phone,
+			created_at,
+			updated_at
+		)
+		VALUES ($1, $2, $3, NOW(), NOW())
+		ON CONFLICT (user_id) DO NOTHING
+	`
+
 	_, err := r.db.Exec(
 		ctx,
-		`
-		INSERT INTO user_profiles (user_id, name, phone)
-		VALUES ($1, '', '')
-		`,
+		query,
 		userID,
+		name,
+		phone,
 	)
 
-	return err
+	if err != nil {
+		return fmt.Errorf("repository create profile: %w", err)
+	}
+
+	return nil
 }

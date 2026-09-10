@@ -3,6 +3,7 @@ package grpcclient
 import (
 	"context"
 	"fmt"
+	"time"
 
 	pb "amelli/proto"
 
@@ -34,15 +35,26 @@ func (c *Client) Close() error {
 	return c.conn.Close()
 }
 
-func (c *Client) CreateProfile(ctx context.Context, userID int64) error {
+func (c *Client) CreateProfile(
+	ctx context.Context,
+	userID int64,
+	name string,
+	phone string,
+) error {
+	callCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
 	_, err := c.client.CreateProfile(
-		ctx,
+		callCtx,
 		&pb.CreateProfileRequest{
 			UserId: fmt.Sprintf("%d", userID),
+			Name:   name,
+			Phone:  phone,
 		},
 	)
+
 	if err != nil {
-		return fmt.Errorf("create profile via user-service: %w", err)
+		return fmt.Errorf("create profile via user-service grpc: %w", err)
 	}
 
 	return nil

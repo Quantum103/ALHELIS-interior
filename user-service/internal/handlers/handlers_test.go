@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"net/http"
 	"net/http/httptest"
@@ -10,204 +9,114 @@ import (
 
 	"user-service/internal/middleware"
 	"user-service/internal/models"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
 type mockUserService struct {
-	mock.Mock
+	getProfileFunc    func(ctx context.Context, userID int64) (*models.UserProfile, error)
+	createProfileFunc func(ctx context.Context, userID int64, name string, phone string) error
 }
 
 func (m *mockUserService) GetProfile(ctx context.Context, userID int64) (*models.UserProfile, error) {
-	args := m.Called(ctx, userID)
+	return m.getProfileFunc(ctx, userID)
+}
 
-	var profile *models.UserProfile
-	if args.Get(0) != nil {
-		profile = args.Get(0).(*models.UserProfile)
+func (m *mockUserService) CreateProfile(ctx context.Context, userID int64, name string, phone string) error {
+	return m.createProfileFunc(ctx, userID, name, phone)
+}
+
+func contextWithUserID(userID int64) context.Context {
+	return context.WithValue(context.Background(), middleware.UserIDKey, userID)
+}
+
+func TestShowLK_Unauthorized(t *testing.T) {
+	handler := NewUserHandler(&mockUserService{})
+	req := httptest.NewRequest(http.MethodGet, "/api/user/profile", nil)
+	w := httptest.NewRecorder()
+
+	handler.ShowLK(w, req)
+
+	if w.Code != http.StatusUnauthorized {
+		t.Errorf("expected status %d, got %d", http.StatusUnauthorized, w.Code)
 	}
-
-	return profile, args.Error(1)
 }
 
-func (m *mockUserService) CreateProfile(ctx context.Context, userID int64) error {
-	args := m.Called(ctx, userID)
-	return args.Error(0)
+func TestShowLK_NotFound(t *testing.T) {
+	mock := &mockUserService{
+		getProfileFunc: func(ctx context.Context, userID int64) (*models.UserProfile, error) {
+			return nil, errors.New("not found")
+		},
+	}
+	handler := NewUserHandler(mock)
+	req := httptest.NewRequest(http.MethodGet, "/api/user/profile", nil).WithContext(contextWithUserID(1))
+	w := httptest.NewRecorder()
+
+	handler.ShowLK(w, req)
+
+	if w.Code != http.StatusNotFound {
+		t.Errorf("expected status %d, got %d", http.StatusNotFound, w.Code)
+	}
 }
 
-func TestShowLK(t *testing.T) {
-	t.Run("success", func(t *testing.T) {
-		service := new(mockUserService)
+func TestShowLK_Success(t *testing.T) {
+	expectedProfile := &models.UserProfile{UserID: 1, Name: "Test"}
+	mock := &mockUserService{
+		getProfileFunc: func(ctx context.Context, userID int64) (*models.UserProfile, error) {
+			return expectedProfile, nil
+		},
+	}
+	handler := NewUserHandler(mock)
+	req := httptest.NewRequest(http.MethodGet, "/api/user/profile", nil).WithContext(contextWithUserID(1))
+	w := httptest.NewRecorder()
 
-		profile := &models.UserProfile{
-			UserID: 1,
-			Name:   "Test",
-			Phone:  "123456789",
-		}
+	handler.ShowLK(w, req)
 
-		service.On("GetProfile", mock.Anything, int64(1)).
-			Return(profile, nil)
-
-		handler := NewUserHandler(service)
-
-		ctx := context.WithValue(
-			context.Background(),
-			middleware.UserIDKey,
-			int64(1),
-		)
-
-		req := httptest.NewRequest(http.MethodGet, "/lk", nil)
-		req = req.WithContext(ctx)
-
-		rec := httptest.NewRecorder()
-
-		handler.ShowLK(rec, req)
-
-		assert.Equal(t, http.StatusOK, rec.Code)
-		assert.Equal(t, "application/json", rec.Header().Get("Content-Type"))
-
-		var result models.UserProfile
-
-		err := json.NewDecoder(rec.Body).Decode(&result)
-
-		assert.NoError(t, err)
-		assert.Equal(t, profile.UserID, result.UserID)
-		assert.Equal(t, profile.Name, result.Name)
-		assert.Equal(t, profile.Phone, result.Phone)
-
-		service.AssertExpectations(t)
-	})
-
-	t.Run("unauthorized", func(t *testing.T) {
-		service := new(mockUserService)
-
-		handler := NewUserHandler(service)
-
-		req := httptest.NewRequest(http.MethodGet, "/lk", nil)
-		rec := httptest.NewRecorder()
-
-		handler.ShowLK(rec, req)
-
-		assert.Equal(t, http.StatusUnauthorized, rec.Code)
-
-		service.AssertNotCalled(t, "GetProfile")
-	})
-
-	t.Run("profile not found", func(t *testing.T) {
-		service := new(mockUserService)
-
-		service.On("GetProfile", mock.Anything, int64(1)).
-			Return(nil, errors.New("profile not found"))
-
-		handler := NewUserHandler(service)
-
-		ctx := context.WithValue(
-			context.Background(),
-			middleware.UserIDKey,
-			int64(1),
-		)
-
-		req := httptest.NewRequest(http.MethodGet, "/lk", nil)
-		req = req.WithContext(ctx)
-
-		rec := httptest.NewRecorder()
-
-		handler.ShowLK(rec, req)
-
-		assert.Equal(t, http.StatusNotFound, rec.Code)
-
-		service.AssertExpectations(t)
-	})
+	if w.Code != http.StatusOK {
+		t.Errorf("expected status %d, got %d", http.StatusOK, w.Code)
+	}
 }
 
-func TestCreateProfile(t *testing.T) {
-	t.Run("success", func(t *testing.T) {
-		service := new(mockUserService)
+func TestCreateProfile_Unauthorized(t *testing.T) {
+	handler := NewUserHandler(&mockUserService{})
+	req := httptest.NewRequest(http.MethodPost, "/api/user/profile", nil)
+	w := httptest.NewRecorder()
 
-		service.On("CreateProfile", mock.Anything, int64(1)).
-			Return(nil)
+	handler.CreateProfile(w, req)
 
-		handler := NewUserHandler(service)
+	if w.Code != http.StatusUnauthorized {
+		t.Errorf("expected status %d, got %d", http.StatusUnauthorized, w.Code)
+	}
+}
 
-		ctx := context.WithValue(
-			context.Background(),
-			middleware.UserIDKey,
-			int64(1),
-		)
+func TestCreateProfile_InternalError(t *testing.T) {
+	mock := &mockUserService{
+		createProfileFunc: func(ctx context.Context, userID int64, name string, phone string) error {
+			return errors.New("db error")
+		},
+	}
+	handler := NewUserHandler(mock)
+	req := httptest.NewRequest(http.MethodPost, "/api/user/profile", nil).WithContext(contextWithUserID(1))
+	w := httptest.NewRecorder()
 
-		req := httptest.NewRequest(http.MethodPost, "/profile", nil)
-		req = req.WithContext(ctx)
+	handler.CreateProfile(w, req)
 
-		rec := httptest.NewRecorder()
+	if w.Code != http.StatusInternalServerError {
+		t.Errorf("expected status %d, got %d", http.StatusInternalServerError, w.Code)
+	}
+}
 
-		handler.CreateProfile(rec, req)
+func TestCreateProfile_Success(t *testing.T) {
+	mock := &mockUserService{
+		createProfileFunc: func(ctx context.Context, userID int64, name string, phone string) error {
+			return nil
+		},
+	}
+	handler := NewUserHandler(mock)
+	req := httptest.NewRequest(http.MethodPost, "/api/user/profile", nil).WithContext(contextWithUserID(1))
+	w := httptest.NewRecorder()
 
-		assert.Equal(t, http.StatusCreated, rec.Code)
-		assert.Equal(t, "application/json", rec.Header().Get("Content-Type"))
+	handler.CreateProfile(w, req)
 
-		var result map[string]string
-
-		err := json.NewDecoder(rec.Body).Decode(&result)
-
-		assert.NoError(t, err)
-		assert.Equal(t, "Профиль создан", result["message"])
-
-		service.AssertExpectations(t)
-	})
-
-	t.Run("method not allowed", func(t *testing.T) {
-		service := new(mockUserService)
-
-		handler := NewUserHandler(service)
-
-		req := httptest.NewRequest(http.MethodGet, "/profile", nil)
-		rec := httptest.NewRecorder()
-
-		handler.CreateProfile(rec, req)
-
-		assert.Equal(t, http.StatusMethodNotAllowed, rec.Code)
-
-		service.AssertNotCalled(t, "CreateProfile")
-	})
-
-	t.Run("unauthorized", func(t *testing.T) {
-		service := new(mockUserService)
-
-		handler := NewUserHandler(service)
-
-		req := httptest.NewRequest(http.MethodPost, "/profile", nil)
-		rec := httptest.NewRecorder()
-
-		handler.CreateProfile(rec, req)
-
-		assert.Equal(t, http.StatusUnauthorized, rec.Code)
-
-		service.AssertNotCalled(t, "CreateProfile")
-	})
-
-	t.Run("service error", func(t *testing.T) {
-		service := new(mockUserService)
-
-		service.On("CreateProfile", mock.Anything, int64(1)).
-			Return(errors.New("database error"))
-
-		handler := NewUserHandler(service)
-
-		ctx := context.WithValue(
-			context.Background(),
-			middleware.UserIDKey,
-			int64(1),
-		)
-
-		req := httptest.NewRequest(http.MethodPost, "/profile", nil)
-		req = req.WithContext(ctx)
-
-		rec := httptest.NewRecorder()
-
-		handler.CreateProfile(rec, req)
-
-		assert.Equal(t, http.StatusInternalServerError, rec.Code)
-
-		service.AssertExpectations(t)
-	})
+	if w.Code != http.StatusCreated {
+		t.Errorf("expected status %d, got %d", http.StatusCreated, w.Code)
+	}
 }

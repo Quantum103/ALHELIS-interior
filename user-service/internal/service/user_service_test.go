@@ -6,99 +6,89 @@ import (
 	"testing"
 
 	"user-service/internal/models"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
 type mockUserRepository struct {
-	mock.Mock
+	getProfileFunc    func(ctx context.Context, userID int64) (*models.UserProfile, error)
+	createProfileFunc func(ctx context.Context, userID int64, name string, phone string) error
 }
 
 func (m *mockUserRepository) GetProfile(ctx context.Context, userID int64) (*models.UserProfile, error) {
-	args := m.Called(ctx, userID)
+	return m.getProfileFunc(ctx, userID)
+}
 
-	var profile *models.UserProfile
-	if args.Get(0) != nil {
-		profile = args.Get(0).(*models.UserProfile)
+func (m *mockUserRepository) CreateProfile(ctx context.Context, userID int64, name string, phone string) error {
+	return m.createProfileFunc(ctx, userID, name, phone)
+}
+
+func TestUserService_GetProfile_Success(t *testing.T) {
+	expectedProfile := &models.UserProfile{UserID: 1, Name: "Test", Phone: "123"}
+	mock := &mockUserRepository{
+		getProfileFunc: func(ctx context.Context, userID int64) (*models.UserProfile, error) {
+			return expectedProfile, nil
+		},
 	}
 
-	return profile, args.Error(1)
+	svc := NewUserService(mock)
+	profile, err := svc.GetProfile(context.Background(), 1)
+
+	if err != nil {
+		t.Fatalf("expected nil error, got %v", err)
+	}
+	if profile.UserID != expectedProfile.UserID {
+		t.Errorf("expected UserID %d, got %d", expectedProfile.UserID, profile.UserID)
+	}
 }
 
-func (m *mockUserRepository) CreateProfile(ctx context.Context, userID int64) error {
-	args := m.Called(ctx, userID)
-	return args.Error(0)
+func TestUserService_GetProfile_Error(t *testing.T) {
+	expectedErr := errors.New("profile not found")
+	mock := &mockUserRepository{
+		getProfileFunc: func(ctx context.Context, userID int64) (*models.UserProfile, error) {
+			return nil, expectedErr
+		},
+	}
+
+	svc := NewUserService(mock)
+	_, err := svc.GetProfile(context.Background(), 1)
+
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+	if err.Error() != expectedErr.Error() {
+		t.Errorf("expected error %v, got %v", expectedErr, err)
+	}
 }
 
-func TestGetProfile(t *testing.T) {
-	t.Run("success", func(t *testing.T) {
-		repo := new(mockUserRepository)
+func TestUserService_CreateProfile_Success(t *testing.T) {
+	mock := &mockUserRepository{
+		createProfileFunc: func(ctx context.Context, userID int64, name string, phone string) error {
+			return nil
+		},
+	}
 
-		profile := &models.UserProfile{
-			UserID: 1,
-			Name:   "Test",
-			Phone:  "123456789",
-		}
+	svc := NewUserService(mock)
+	err := svc.CreateProfile(context.Background(), 1, "Test", "123")
 
-		repo.On("GetProfile", mock.Anything, int64(1)).
-			Return(profile, nil)
-
-		service := NewUserService(repo)
-
-		result, err := service.GetProfile(context.Background(), 1)
-
-		assert.NoError(t, err)
-		assert.Equal(t, profile, result)
-
-		repo.AssertExpectations(t)
-	})
-
-	t.Run("error", func(t *testing.T) {
-		repo := new(mockUserRepository)
-
-		repo.On("GetProfile", mock.Anything, int64(1)).
-			Return(nil, errors.New("profile not found"))
-
-		service := NewUserService(repo)
-
-		result, err := service.GetProfile(context.Background(), 1)
-
-		assert.Error(t, err)
-		assert.Nil(t, result)
-
-		repo.AssertExpectations(t)
-	})
+	if err != nil {
+		t.Fatalf("expected nil error, got %v", err)
+	}
 }
 
-func TestCreateProfile(t *testing.T) {
-	t.Run("success", func(t *testing.T) {
-		repo := new(mockUserRepository)
+func TestUserService_CreateProfile_Error(t *testing.T) {
+	expectedErr := errors.New("db error")
+	mock := &mockUserRepository{
+		createProfileFunc: func(ctx context.Context, userID int64, name string, phone string) error {
+			return expectedErr
+		},
+	}
 
-		repo.On("CreateProfile", mock.Anything, int64(1)).
-			Return(nil)
+	svc := NewUserService(mock)
+	err := svc.CreateProfile(context.Background(), 1, "Test", "123")
 
-		service := NewUserService(repo)
-
-		err := service.CreateProfile(context.Background(), 1)
-
-		assert.NoError(t, err)
-
-		repo.AssertExpectations(t)
-	})
-
-	t.Run("error", func(t *testing.T) {
-		repo := new(mockUserRepository)
-
-		repo.On("CreateProfile", mock.Anything, int64(1)).
-			Return(errors.New("database error"))
-
-		service := NewUserService(repo)
-
-		err := service.CreateProfile(context.Background(), 1)
-
-		assert.Error(t, err)
-
-		repo.AssertExpectations(t)
-	})
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+	if err.Error() != "failed to create profile in db: db error" {
+		t.Errorf("expected 'failed to create profile in db: db error', got %v", err)
+	}
 }

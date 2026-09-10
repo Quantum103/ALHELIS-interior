@@ -2,7 +2,7 @@ const API = {
     profile: "/api/user/profile",
     projects: "/api/profile/projects",
     favorites: "/api/profile/favorites",
-    updateProfile: "/api/profile",
+    updateProfile: "/api/user/profile", 
     changePassword: "/api/auth/password",
     logout: "/api/auth/logout"
 };
@@ -119,38 +119,40 @@ async function loadProfile() {
             }
         });
 
-        console.log("STATUS:", response.status);
-        console.log("CONTENT-TYPE:", response.headers.get("content-type"));
-
-        const text = await response.text();
-
-        console.log("PROFILE RAW:", text);
-
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${text}`);
+        if (response.status === 401) {
+            localStorage.removeItem("access_token");
+            window.location.href = "/auth";
+            return;
         }
 
-        const profile = JSON.parse(text);
-
-        console.log("PROFILE PARSED:", profile);
-
-        const fullNameElement = document.getElementById("userFullName");
-
-        if (fullNameElement) {
-            fullNameElement.textContent = profile.name ?? "";
+        // Если профиль еще не создан (404), просто считаем его пустым, а не кидаем ошибку
+        if (response.status === 404) {
+            console.log("Профиль еще не создан, показываем пустые поля");
+            const profile = { name: "", phone: "" };
+            renderProfile(profile);
+            return;
         }
 
-        const nameInput = document.getElementById("name");
-
-        if (nameInput) {
-            nameInput.value = profile.name ?? "";
-        }
+        const profile = await response.json();
+        renderProfile(profile);
 
     } catch (error) {
         console.error("Ошибка загрузки профиля:", error);
     }
 }
 
+// Вынеси отрисовку в отдельную функцию для чистоты
+function renderProfile(profile) {
+    const fullNameElement = document.getElementById("userFullName");
+    if (fullNameElement) {
+        fullNameElement.textContent = profile.name || "Пользователь";
+    }
+
+    const nameInput = document.getElementById("name");
+    if (nameInput) {
+        nameInput.value = profile.name || "";
+    }
+}
 
     /*
      * ==========================================
@@ -889,7 +891,7 @@ async function loadProfile() {
 
             await loadProfile();
 
-            await loadProjects();
+            // await loadProjects();
 
         }
     );

@@ -2,13 +2,15 @@ package service
 
 import (
 	"context"
+	"fmt"
+	"log"
 
 	"user-service/internal/models"
 )
 
 type UserRepository interface {
 	GetProfile(ctx context.Context, userID int64) (*models.UserProfile, error)
-	CreateProfile(ctx context.Context, userID int64) error
+	CreateProfile(ctx context.Context, userID int64, name string, phone string) error
 }
 
 type UserService struct {
@@ -21,16 +23,36 @@ func NewUserService(repo UserRepository) *UserService {
 	}
 }
 
-func (s *UserService) GetProfile(
-	ctx context.Context,
-	userID int64,
-) (*models.UserProfile, error) {
+func (s *UserService) GetProfile(ctx context.Context, userID int64) (*models.UserProfile, error) {
 	return s.repo.GetProfile(ctx, userID)
 }
 
 func (s *UserService) CreateProfile(
 	ctx context.Context,
 	userID int64,
+	name string,
+	phone string,
 ) error {
-	return s.repo.CreateProfile(ctx, userID)
+
+	err := s.repo.CreateProfile(
+		ctx,
+		userID,
+		name,
+		phone,
+	)
+
+	if err != nil {
+		log.Printf(
+			"[user-service] ОШИБКА БД userID=%d: %v",
+			userID,
+			err,
+		)
+
+		return fmt.Errorf(
+			"failed to create profile in db: %w",
+			err,
+		)
+	}
+
+	return nil
 }

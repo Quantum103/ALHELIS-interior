@@ -2,7 +2,12 @@ CREATE DATABASE auth_db;
 CREATE DATABASE user_db;
 CREATE DATABASE design_db;
 
+GRANT ALL PRIVILEGES ON DATABASE auth_db TO current_user;
+GRANT ALL PRIVILEGES ON DATABASE user_db TO current_user;
+GRANT ALL PRIVILEGES ON DATABASE design_db TO current_user;
+
 \connect auth_db
+GRANT ALL ON SCHEMA public TO current_user;
 
 CREATE TABLE IF NOT EXISTS users (
     id BIGSERIAL PRIMARY KEY,
@@ -21,6 +26,7 @@ CREATE TABLE IF NOT EXISTS refresh_tokens (
 );
 
 \connect user_db
+GRANT ALL ON SCHEMA public TO current_user;
 
 CREATE TABLE IF NOT EXISTS user_profiles (
     user_id BIGINT PRIMARY KEY,
@@ -36,13 +42,10 @@ CREATE TABLE IF NOT EXISTS orders (
     service_id BIGINT NOT NULL,
     description TEXT,
     area DOUBLE PRECISION,
-
     guest_name VARCHAR(100),
     guest_email VARCHAR(255),
     guest_phone VARCHAR(30),
-
     status VARCHAR(50) NOT NULL DEFAULT 'created',
-
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -51,9 +54,8 @@ CREATE TABLE IF NOT EXISTS favorites (
     user_id BIGINT NOT NULL,
     service_id BIGINT NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-
     PRIMARY KEY (user_id, service_id)
 );
 
-
--- \connect design_db
+\connect design_db
+GRANT ALL ON SCHEMA public TO current_user;

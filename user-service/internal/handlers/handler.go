@@ -12,9 +12,8 @@ import (
 
 type UserService interface {
 	GetProfile(ctx context.Context, userID int64) (*models.UserProfile, error)
-	CreateProfile(ctx context.Context, userID int64) error
+	CreateProfile(ctx context.Context, userID int64, name string, phone string) error
 }
-
 type UserHandler struct {
 	service UserService
 }
@@ -27,42 +26,23 @@ func NewUserHandler(service UserService) *UserHandler {
 
 func (h *UserHandler) ShowLK(w http.ResponseWriter, r *http.Request) {
 	userID, ok := middleware.GetUserIDFromContext(r.Context())
-
 	if !ok {
-		http.Error(
-			w,
-			`{"error":"Пользователь не авторизован"}`,
-			http.StatusUnauthorized,
-		)
+		http.Error(w, `{"error":"Пользователь не авторизован"}`, http.StatusUnauthorized)
 		return
 	}
 
-	log.Printf("PROFILE USER ID: %d", userID)
-
 	profile, err := h.service.GetProfile(r.Context(), userID)
-
-	log.Printf("PROFILE: %+v", profile)
-	log.Printf("PROFILE ERROR: %v", err)
-
 	if err != nil {
-		http.Error(
-			w,
-			`{"error":"Профиль не найден"}`,
-			http.StatusNotFound,
-		)
+		http.Error(w, `{"error":"Профиль не найден"}`, http.StatusNotFound)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-
 	if err := json.NewEncoder(w).Encode(profile); err != nil {
-		http.Error(
-			w,
-			`{"error":"Ошибка формирования ответа"}`,
-			http.StatusInternalServerError,
-		)
+		http.Error(w, `{"error":"Ошибка формирования ответа"}`, http.StatusInternalServerError)
 	}
 }
+
 func (h *UserHandler) CreateProfile(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, `{"error":"Method not allowed"}`, http.StatusMethodNotAllowed)
@@ -75,7 +55,12 @@ func (h *UserHandler) CreateProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.service.CreateProfile(r.Context(), userID); err != nil {
+	if err := h.service.CreateProfile(
+		r.Context(),
+		userID,
+		"",
+		"",
+	); err != nil {
 		log.Printf("Ошибка создания профиля для userID=%d: %v", userID, err)
 		http.Error(w, `{"error":"Ошибка создания профиля"}`, http.StatusInternalServerError)
 		return

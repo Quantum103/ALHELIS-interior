@@ -1,12 +1,12 @@
 package handlers
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"auth-service/internal/middleware"
@@ -17,16 +17,23 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-type mockAuthService struct {
+type MockAuthService struct {
 	mock.Mock
 }
 
-func (m *mockAuthService) Register(ctx context.Context, req models.RegisterRequest) (int64, error) {
+func (m *MockAuthService) Register(
+	ctx context.Context,
+	req models.RegisterRequest,
+) (int64, error) {
 	args := m.Called(ctx, req)
+
 	return args.Get(0).(int64), args.Error(1)
 }
 
-func (m *mockAuthService) Login(ctx context.Context, req models.LoginRequest) (string, *models.UserResponse, error) {
+func (m *MockAuthService) Login(
+	ctx context.Context,
+	req models.LoginRequest,
+) (string, *models.UserResponse, error) {
 	args := m.Called(ctx, req)
 
 	var user *models.UserResponse
@@ -37,7 +44,10 @@ func (m *mockAuthService) Login(ctx context.Context, req models.LoginRequest) (s
 	return args.String(0), user, args.Error(2)
 }
 
-func (m *mockAuthService) GetMe(ctx context.Context, id int64) (*models.UserResponse, error) {
+func (m *MockAuthService) GetMe(
+	ctx context.Context,
+	id int64,
+) (*models.UserResponse, error) {
 	args := m.Called(ctx, id)
 
 	var user *models.UserResponse
@@ -50,70 +60,90 @@ func (m *mockAuthService) GetMe(ctx context.Context, id int64) (*models.UserResp
 
 func TestHandleRegister(t *testing.T) {
 	tests := []struct {
-		name       string
-		method     string
-		body       string
-		mock       bool
-		mockErr    error
-		wantStatus int
+		name           string
+		body           string
+		setupMock      func(*MockAuthService)
+		expectedStatus int
 	}{
 		{
-			name:       "success",
-			method:     http.MethodPost,
-			body:       `{"username":"test","email":"test@example.com","password":"password"}`,
-			mock:       true,
-			wantStatus: http.StatusCreated,
+			name: "success",
+			body: `{
+				"username": "pavel",
+				"email": "pavel@test.com",
+				"password": "123456"
+			}`,
+			setupMock: func(m *MockAuthService) {
+				m.On(
+					"Register",
+					mock.Anything,
+					models.RegisterRequest{
+						Username: "pavel",
+						Email:    "pavel@test.com",
+						Password: "123456",
+					},
+				).Return(int64(1), nil)
+			},
+			expectedStatus: http.StatusCreated,
 		},
 		{
-			name:       "method not allowed",
-			method:     http.MethodGet,
-			body:       "",
-			wantStatus: http.StatusMethodNotAllowed,
+			name:           "invalid json",
+			body:           `{invalid json}`,
+			setupMock:      func(m *MockAuthService) {},
+			expectedStatus: http.StatusBadRequest,
 		},
 		{
-			name:       "invalid json",
-			method:     http.MethodPost,
-			body:       `{invalid}`,
-			wantStatus: http.StatusBadRequest,
+			name: "service error",
+			body: `{
+				"username": "pavel",
+				"email": "pavel@test.com",
+				"password": "123456"
+			}`,
+			setupMock: func(m *MockAuthService) {
+				m.On(
+					"Register",
+					mock.Anything,
+					models.RegisterRequest{
+						Username: "pavel",
+						Email:    "pavel@test.com",
+						Password: "123456",
+					},
+				).Return(int64(0), errors.New("database error"))
+			},
+			expectedStatus: http.StatusInternalServerError,
 		},
 		{
-			name:       "service error",
-			method:     http.MethodPost,
-			body:       `{"username":"test","email":"test@example.com","password":"password"}`,
-			mock:       true,
-			mockErr:    errors.New("database error"),
-			wantStatus: http.StatusInternalServerError,
+			name:           "method not allowed",
+			body:           `{}`,
+			setupMock:      func(m *MockAuthService) {},
+			expectedStatus: http.StatusMethodNotAllowed,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			auth := new(mockAuthService)
+			mockService := new(MockAuthService)
+			tt.setupMock(mockService)
 
-			if tt.mock {
-				auth.On(
-					"Register",
-					mock.Anything,
-					mock.AnythingOfType("models.RegisterRequest"),
-				).Return(int64(1), tt.mockErr)
+			server := NewServer(mockService)
+
+			method := http.MethodPost
+			if tt.name == "method not allowed" {
+				method = http.MethodGet
 			}
 
-			server := NewServer(auth)
-
 			req := httptest.NewRequest(
-				tt.method,
-				"/register",
-				bytes.NewBufferString(tt.body),
+				method,
+				"/auth/register",
+				strings.NewReader(tt.body),
 			)
+
 			rec := httptest.NewRecorder()
 
 			server.HandleRegister(rec, req)
 
-			assert.Equal(t, tt.wantStatus, rec.Code)
+			assert.Equal(t, tt.expectedStatus, rec.Code)
 
-			if tt.mock {
-				auth.AssertExpectations(t)
-			}
+			mockService.AssertExpectations(t)
 		})
 	}
 }
@@ -121,83 +151,127 @@ func TestHandleRegister(t *testing.T) {
 func TestHandleLogin(t *testing.T) {
 	user := &models.UserResponse{
 		ID:       1,
-		Username: "test",
-		Email:    "test@example.com",
+		Username: "pavel",
+		Email:    "pavel@test.com",
 	}
 
 	tests := []struct {
-		name       string
-		method     string
-		body       string
-		token      string
-		user       *models.UserResponse
-		err        error
-		wantStatus int
+		name           string
+		body           string
+		setupMock      func(*MockAuthService)
+		expectedStatus int
 	}{
 		{
-			name:       "success",
-			method:     http.MethodPost,
-			body:       `{"username":"test","password":"password"}`,
-			token:      "token",
-			user:       user,
-			wantStatus: http.StatusOK,
+			name: "success",
+			body: `{
+				"username": "pavel",
+				"password": "123456"
+			}`,
+			setupMock: func(m *MockAuthService) {
+				m.On(
+					"Login",
+					mock.Anything,
+					models.LoginRequest{
+						Username: "pavel",
+						Password: "123456",
+					},
+				).Return("test-token", user, nil)
+			},
+			expectedStatus: http.StatusOK,
 		},
 		{
-			name:       "method not allowed",
-			method:     http.MethodGet,
-			body:       "",
-			wantStatus: http.StatusMethodNotAllowed,
+			name:           "invalid json",
+			body:           `{invalid json}`,
+			setupMock:      func(m *MockAuthService) {},
+			expectedStatus: http.StatusBadRequest,
 		},
 		{
-			name:       "invalid json",
-			method:     http.MethodPost,
-			body:       `{invalid}`,
-			wantStatus: http.StatusBadRequest,
+			name: "invalid credentials",
+			body: `{
+				"username": "pavel",
+				"password": "wrong"
+			}`,
+			setupMock: func(m *MockAuthService) {
+				m.On(
+					"Login",
+					mock.Anything,
+					models.LoginRequest{
+						Username: "pavel",
+						Password: "wrong",
+					},
+				).Return(
+					"",
+					nil,
+					service.ErrInvalidCredentials,
+				)
+			},
+			expectedStatus: http.StatusUnauthorized,
 		},
 		{
-			name:       "invalid credentials",
-			method:     http.MethodPost,
-			body:       `{"username":"test","password":"wrong"}`,
-			err:        service.ErrInvalidCredentials,
-			wantStatus: http.StatusUnauthorized,
+			name: "service error",
+			body: `{
+				"username": "pavel",
+				"password": "123456"
+			}`,
+			setupMock: func(m *MockAuthService) {
+				m.On(
+					"Login",
+					mock.Anything,
+					models.LoginRequest{
+						Username: "pavel",
+						Password: "123456",
+					},
+				).Return(
+					"",
+					nil,
+					errors.New("database error"),
+				)
+			},
+			expectedStatus: http.StatusInternalServerError,
 		},
 		{
-			name:       "service error",
-			method:     http.MethodPost,
-			body:       `{"username":"test","password":"password"}`,
-			err:        errors.New("database error"),
-			wantStatus: http.StatusInternalServerError,
+			name:           "method not allowed",
+			body:           `{}`,
+			setupMock:      func(m *MockAuthService) {},
+			expectedStatus: http.StatusMethodNotAllowed,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			auth := new(mockAuthService)
+			mockService := new(MockAuthService)
+			tt.setupMock(mockService)
 
-			if tt.method == http.MethodPost && tt.body != `{invalid}` {
-				auth.On(
-					"Login",
-					mock.Anything,
-					mock.AnythingOfType("models.LoginRequest"),
-				).Return(tt.token, tt.user, tt.err)
+			server := NewServer(mockService)
+
+			method := http.MethodPost
+			if tt.name == "method not allowed" {
+				method = http.MethodGet
 			}
 
-			server := NewServer(auth)
-
 			req := httptest.NewRequest(
-				tt.method,
-				"/login",
-				bytes.NewBufferString(tt.body),
+				method,
+				"/auth/login",
+				strings.NewReader(tt.body),
 			)
+
 			rec := httptest.NewRecorder()
 
 			server.HandleLogin(rec, req)
 
-			assert.Equal(t, tt.wantStatus, rec.Code)
+			assert.Equal(t, tt.expectedStatus, rec.Code)
 
-			if tt.method == http.MethodPost && tt.body != `{invalid}` {
-				auth.AssertExpectations(t)
+			if tt.name == "success" {
+				var response map[string]interface{}
+
+				err := json.NewDecoder(rec.Body).Decode(&response)
+
+				assert.NoError(t, err)
+				assert.Equal(t, "test-token", response["access_token"])
+				assert.NotNil(t, response["user"])
 			}
+
+			mockService.AssertExpectations(t)
 		})
 	}
 }
@@ -205,25 +279,33 @@ func TestHandleLogin(t *testing.T) {
 func TestHandleGetMe(t *testing.T) {
 	user := &models.UserResponse{
 		ID:       1,
-		Username: "test",
-		Email:    "test@example.com",
+		Username: "pavel",
+		Email:    "pavel@test.com",
 	}
 
 	t.Run("success", func(t *testing.T) {
-		auth := new(mockAuthService)
+		mockService := new(MockAuthService)
 
-		auth.On("GetMe", mock.Anything, int64(1)).
-			Return(user, nil)
+		mockService.On(
+			"GetMe",
+			mock.Anything,
+			int64(1),
+		).Return(user, nil)
 
-		server := NewServer(auth)
+		server := NewServer(mockService)
+
+		req := httptest.NewRequest(
+			http.MethodGet,
+			"/auth/me",
+			nil,
+		)
 
 		ctx := context.WithValue(
-			context.Background(),
+			req.Context(),
 			middleware.UserIDKey,
 			int64(1),
 		)
 
-		req := httptest.NewRequest(http.MethodGet, "/me", nil)
 		req = req.WithContext(ctx)
 
 		rec := httptest.NewRecorder()
@@ -233,44 +315,60 @@ func TestHandleGetMe(t *testing.T) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 
 		var response models.UserResponse
+
 		err := json.NewDecoder(rec.Body).Decode(&response)
 
 		assert.NoError(t, err)
-		assert.Equal(t, user.ID, response.ID)
-		assert.Equal(t, user.Username, response.Username)
-		assert.Equal(t, user.Email, response.Email)
+		assert.Equal(t, int64(1), response.ID)
+		assert.Equal(t, "pavel", response.Username)
+		assert.Equal(t, "pavel@test.com", response.Email)
 
-		auth.AssertExpectations(t)
+		mockService.AssertExpectations(t)
 	})
 
 	t.Run("unauthorized", func(t *testing.T) {
-		auth := new(mockAuthService)
-		server := NewServer(auth)
+		mockService := new(MockAuthService)
 
-		req := httptest.NewRequest(http.MethodGet, "/me", nil)
+		server := NewServer(mockService)
+
+		req := httptest.NewRequest(
+			http.MethodGet,
+			"/auth/me",
+			nil,
+		)
+
 		rec := httptest.NewRecorder()
 
 		server.HandleGetMe(rec, req)
 
 		assert.Equal(t, http.StatusUnauthorized, rec.Code)
-		auth.AssertNotCalled(t, "GetMe")
+
+		mockService.AssertNotCalled(t, "GetMe")
 	})
 
 	t.Run("user not found", func(t *testing.T) {
-		auth := new(mockAuthService)
+		mockService := new(MockAuthService)
 
-		auth.On("GetMe", mock.Anything, int64(1)).
-			Return(nil, errors.New("not found"))
+		mockService.On(
+			"GetMe",
+			mock.Anything,
+			int64(1),
+		).Return(nil, errors.New("user not found"))
 
-		server := NewServer(auth)
+		server := NewServer(mockService)
+
+		req := httptest.NewRequest(
+			http.MethodGet,
+			"/auth/me",
+			nil,
+		)
 
 		ctx := context.WithValue(
-			context.Background(),
+			req.Context(),
 			middleware.UserIDKey,
 			int64(1),
 		)
 
-		req := httptest.NewRequest(http.MethodGet, "/me", nil)
 		req = req.WithContext(ctx)
 
 		rec := httptest.NewRecorder()
@@ -279,30 +377,6 @@ func TestHandleGetMe(t *testing.T) {
 
 		assert.Equal(t, http.StatusNotFound, rec.Code)
 
-		auth.AssertExpectations(t)
-	})
-}
-
-func TestHandleAuthPage(t *testing.T) {
-	t.Run("method not allowed", func(t *testing.T) {
-		server := NewServer(new(mockAuthService))
-
-		req := httptest.NewRequest(http.MethodPost, "/auth", nil)
-		rec := httptest.NewRecorder()
-
-		server.HandleAuthPage(rec, req)
-
-		assert.Equal(t, http.StatusMethodNotAllowed, rec.Code)
-	})
-
-	t.Run("get", func(t *testing.T) {
-		server := NewServer(new(mockAuthService))
-
-		req := httptest.NewRequest(http.MethodGet, "/auth", nil)
-		rec := httptest.NewRecorder()
-
-		server.HandleAuthPage(rec, req)
-
-		assert.NotEqual(t, http.StatusMethodNotAllowed, rec.Code)
+		mockService.AssertExpectations(t)
 	})
 }

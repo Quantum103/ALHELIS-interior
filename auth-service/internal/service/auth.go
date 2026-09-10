@@ -20,7 +20,7 @@ type UserRepository interface {
 }
 
 type ProfileCreator interface {
-	CreateProfile(ctx context.Context, userID int64) error
+	CreateProfile(ctx context.Context, userID int64, name, phone string) error
 }
 
 type AuthService struct {
@@ -60,7 +60,12 @@ func (s *AuthService) Register(ctx context.Context, req models.RegisterRequest) 
 		return 0, err
 	}
 
-	if err := s.profileCreator.CreateProfile(ctx, userID); err != nil {
+	if err := s.profileCreator.CreateProfile(
+		ctx,
+		userID,
+		req.Username,
+		"",
+	); err != nil {
 		return 0, err
 	}
 

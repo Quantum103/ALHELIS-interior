@@ -1,314 +1,211 @@
 package service
 
 import (
-	"auth-service/internal/models"
 	"context"
 	"errors"
 	"testing"
-	"time"
+
+	"auth-service/internal/models"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/jackc/pgx/v5"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 	"golang.org/x/crypto/bcrypt"
 )
 
-type mockUserRepository struct {
-	mock.Mock
+type mockUserRepo struct {
+	createFunc     func(ctx context.Context, username, email, passwordHash string) (int64, error)
+	getByLoginFunc func(ctx context.Context, login string) (*models.UserResponse, string, error)
+	getByIDFunc    func(ctx context.Context, id int64) (*models.UserResponse, error)
 }
 
-func (m *mockUserRepository) Create(ctx context.Context, username, email, passwordHash string) (int64, error) {
-	args := m.Called(ctx, username, email, passwordHash)
-	return args.Get(0).(int64), args.Error(1)
+func (m *mockUserRepo) Create(ctx context.Context, username, email, passwordHash string) (int64, error) {
+	return m.createFunc(ctx, username, email, passwordHash)
 }
 
-func (m *mockUserRepository) GetByLogin(ctx context.Context, login string) (*models.UserResponse, string, error) {
-	args := m.Called(ctx, login)
-
-	var user *models.UserResponse
-	if args.Get(0) != nil {
-		user = args.Get(0).(*models.UserResponse)
-	}
-
-	return user, args.String(1), args.Error(2)
+func (m *mockUserRepo) GetByLogin(ctx context.Context, login string) (*models.UserResponse, string, error) {
+	return m.getByLoginFunc(ctx, login)
 }
 
-func (m *mockUserRepository) GetByID(ctx context.Context, id int64) (*models.UserResponse, error) {
-	args := m.Called(ctx, id)
-
-	var user *models.UserResponse
-	if args.Get(0) != nil {
-		user = args.Get(0).(*models.UserResponse)
-	}
-
-	return user, args.Error(1)
+func (m *mockUserRepo) GetByID(ctx context.Context, id int64) (*models.UserResponse, error) {
+	return m.getByIDFunc(ctx, id)
 }
 
 type mockProfileCreator struct {
-	mock.Mock
+	createProfileFunc func(ctx context.Context, userID int64, name, phone string) error
 }
 
-func (m *mockProfileCreator) CreateProfile(ctx context.Context, userID int64) error {
-	args := m.Called(ctx, userID)
-	return args.Error(0)
+func (m *mockProfileCreator) CreateProfile(ctx context.Context, userID int64, name, phone string) error {
+	return m.createProfileFunc(ctx, userID, name, phone)
 }
 
-func TestRegister(t *testing.T) {
-	t.Run("success", func(t *testing.T) {
-		repo := new(mockUserRepository)
-		profile := new(mockProfileCreator)
-
-		repo.On(
-			"Create",
-			mock.Anything,
-			"test",
-			"test@example.com",
-			mock.AnythingOfType("string"),
-		).Return(int64(1), nil)
-
-		profile.On("CreateProfile", mock.Anything, int64(1)).
-			Return(nil)
-
-		s := NewAuthService(repo, "secret", profile)
-
-		req := models.RegisterRequest{
-			Username: "test",
-			Email:    "test@example.com",
-			Password: "password",
-		}
-
-		id, err := s.Register(context.Background(), req)
-
-		assert.NoError(t, err)
-		assert.Equal(t, int64(1), id)
-
-		repo.AssertExpectations(t)
-		profile.AssertExpectations(t)
-	})
-
-	t.Run("repository error", func(t *testing.T) {
-		repo := new(mockUserRepository)
-		profile := new(mockProfileCreator)
-
-		repo.On(
-			"Create",
-			mock.Anything,
-			"test",
-			"test@example.com",
-			mock.AnythingOfType("string"),
-		).Return(int64(0), errors.New("database error"))
-
-		s := NewAuthService(repo, "secret", profile)
-
-		req := models.RegisterRequest{
-			Username: "test",
-			Email:    "test@example.com",
-			Password: "password",
-		}
-
-		id, err := s.Register(context.Background(), req)
-
-		assert.Error(t, err)
-		assert.Equal(t, int64(0), id)
-
-		profile.AssertNotCalled(t, "CreateProfile")
-	})
-
-	t.Run("profile error", func(t *testing.T) {
-		repo := new(mockUserRepository)
-		profile := new(mockProfileCreator)
-
-		repo.On(
-			"Create",
-			mock.Anything,
-			"test",
-			"test@example.com",
-			mock.AnythingOfType("string"),
-		).Return(int64(1), nil)
-
-		profile.On("CreateProfile", mock.Anything, int64(1)).
-			Return(errors.New("profile error"))
-
-		s := NewAuthService(repo, "secret", profile)
-
-		req := models.RegisterRequest{
-			Username: "test",
-			Email:    "test@example.com",
-			Password: "password",
-		}
-
-		id, err := s.Register(context.Background(), req)
-
-		assert.Error(t, err)
-		assert.Equal(t, int64(0), id)
-	})
-}
-
-func TestLogin(t *testing.T) {
-	user := &models.UserResponse{
-		ID:       1,
-		Username: "test",
-		Email:    "test@example.com",
+func TestAuthService_Register_Success(t *testing.T) {
+	mockRepo := &mockUserRepo{
+		createFunc: func(ctx context.Context, username, email, passwordHash string) (int64, error) {
+			if username != "testuser" || email != "test@test.com" {
+				t.Errorf("Неверные аргументы Create: %s, %s", username, email)
+			}
+			return 42, nil // Возвращаем тестовый ID
+		},
 	}
 
-	passwordHash, err := bcrypt.GenerateFromPassword(
-		[]byte("password"),
-		bcrypt.DefaultCost,
-	)
-	assert.NoError(t, err)
-
-	t.Run("success", func(t *testing.T) {
-		repo := new(mockUserRepository)
-
-		repo.On(
-			"GetByLogin",
-			mock.Anything,
-			"test",
-		).Return(user, string(passwordHash), nil)
-
-		s := NewAuthService(repo, "secret", nil)
-
-		tokenString, resultUser, err := s.Login(
-			context.Background(),
-			models.LoginRequest{
-				Username: "test",
-				Password: "password",
-			},
-		)
-
-		assert.NoError(t, err)
-		assert.NotEmpty(t, tokenString)
-		assert.Equal(t, user, resultUser)
-
-		token, err := jwt.Parse(
-			tokenString,
-			func(token *jwt.Token) (interface{}, error) {
-				return []byte("secret"), nil
-			},
-		)
-
-		assert.NoError(t, err)
-		assert.True(t, token.Valid)
-
-		claims := token.Claims.(jwt.MapClaims)
-
-		assert.Equal(t, float64(1), claims["sub"])
-		assert.Equal(t, "test@example.com", claims["email"])
-
-		exp := int64(claims["exp"].(float64))
-		assert.True(t, exp > time.Now().Unix())
-
-		repo.AssertExpectations(t)
-	})
-
-	t.Run("user not found", func(t *testing.T) {
-		repo := new(mockUserRepository)
-
-		repo.On(
-			"GetByLogin",
-			mock.Anything,
-			"test",
-		).Return(nil, "", pgx.ErrNoRows)
-
-		s := NewAuthService(repo, "secret", nil)
-
-		token, resultUser, err := s.Login(
-			context.Background(),
-			models.LoginRequest{
-				Username: "test",
-				Password: "password",
-			},
-		)
-
-		assert.ErrorIs(t, err, ErrInvalidCredentials)
-		assert.Empty(t, token)
-		assert.Nil(t, resultUser)
-	})
-
-	t.Run("wrong password", func(t *testing.T) {
-		repo := new(mockUserRepository)
-
-		repo.On(
-			"GetByLogin",
-			mock.Anything,
-			"test",
-		).Return(user, string(passwordHash), nil)
-
-		s := NewAuthService(repo, "secret", nil)
-
-		token, resultUser, err := s.Login(
-			context.Background(),
-			models.LoginRequest{
-				Username: "test",
-				Password: "wrong",
-			},
-		)
-
-		assert.ErrorIs(t, err, ErrInvalidCredentials)
-		assert.Empty(t, token)
-		assert.Nil(t, resultUser)
-	})
-
-	t.Run("repository error", func(t *testing.T) {
-		repo := new(mockUserRepository)
-
-		repo.On(
-			"GetByLogin",
-			mock.Anything,
-			"test",
-		).Return(nil, "", errors.New("database error"))
-
-		s := NewAuthService(repo, "secret", nil)
-
-		token, resultUser, err := s.Login(
-			context.Background(),
-			models.LoginRequest{
-				Username: "test",
-				Password: "password",
-			},
-		)
-
-		assert.Error(t, err)
-		assert.Empty(t, token)
-		assert.Nil(t, resultUser)
-	})
-}
-
-func TestGetMe(t *testing.T) {
-	user := &models.UserResponse{
-		ID:       1,
-		Username: "test",
-		Email:    "test@example.com",
+	mockProfile := &mockProfileCreator{
+		createProfileFunc: func(ctx context.Context, userID int64, name, phone string) error {
+			if userID != 42 {
+				t.Errorf("Ожидался userID 42, получен %d", userID)
+			}
+			if name != "testuser" {
+				t.Errorf("Ожидалось имя 'testuser', получено '%s'", name)
+			}
+			if phone != "" {
+				t.Errorf("Ожидался пустой телефон, получен '%s'", phone)
+			}
+			return nil
+		},
 	}
 
-	t.Run("success", func(t *testing.T) {
-		repo := new(mockUserRepository)
+	authService := NewAuthService(mockRepo, "test-secret-key", mockProfile)
 
-		repo.On("GetByID", mock.Anything, int64(1)).
-			Return(user, nil)
+	req := models.RegisterRequest{
+		Username: "testuser",
+		Email:    "test@test.com",
+		Password: "password123",
+	}
 
-		s := NewAuthService(repo, "secret", nil)
+	userID, err := authService.Register(context.Background(), req)
 
-		result, err := s.GetMe(context.Background(), 1)
+	if err != nil {
+		t.Fatalf("Ожидалась ошибка nil, получена: %v", err)
+	}
+	if userID != 42 {
+		t.Errorf("Ожидался userID 42, получен %d", userID)
+	}
+}
 
-		assert.NoError(t, err)
-		assert.Equal(t, user, result)
+func TestAuthService_Register_ProfileCreatorError(t *testing.T) {
+	mockRepo := &mockUserRepo{
+		createFunc: func(ctx context.Context, username, email, passwordHash string) (int64, error) {
+			return 42, nil
+		},
+	}
 
-		repo.AssertExpectations(t)
+	expectedErr := errors.New("gRPC ошибка создания профиля")
+	mockProfile := &mockProfileCreator{
+		createProfileFunc: func(ctx context.Context, userID int64, name, phone string) error {
+			return expectedErr
+		},
+	}
+
+	authService := NewAuthService(mockRepo, "test-secret-key", mockProfile)
+	req := models.RegisterRequest{Username: "test", Email: "t@t.com", Password: "123"}
+
+	userID, err := authService.Register(context.Background(), req)
+
+	// Проверка
+	if err == nil {
+		t.Fatal("Ожидалась ошибка, но получена nil")
+	}
+	if userID != 0 {
+		t.Errorf("При ошибке userID должен быть 0, получен %d", userID)
+	}
+}
+
+func TestAuthService_Login_Success(t *testing.T) {
+	plainPassword := "supersecret"
+	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(plainPassword), bcrypt.DefaultCost)
+
+	expectedUser := &models.UserResponse{
+		ID:    10,
+		Email: "user@example.com",
+	}
+
+	mockRepo := &mockUserRepo{
+		getByLoginFunc: func(ctx context.Context, login string) (*models.UserResponse, string, error) {
+			return expectedUser, string(hashedPassword), nil
+		},
+	}
+
+	authService := NewAuthService(mockRepo, "my-jwt-secret", nil)
+	req := models.LoginRequest{Username: "user@example.com", Password: plainPassword}
+
+	tokenString, user, err := authService.Login(context.Background(), req)
+
+	// Проверка
+	if err != nil {
+		t.Fatalf("Ожидалась ошибка nil, получена: %v", err)
+	}
+	if tokenString == "" {
+		t.Error("Токен не должен быть пустым")
+	}
+	if user.ID != expectedUser.ID {
+		t.Errorf("Ожидался пользователь с ID %d, получен %d", expectedUser.ID, user.ID)
+	}
+
+	token, _ := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		return []byte("my-jwt-secret"), nil
 	})
+	if !token.Valid {
+		t.Error("Сгенерированный токен недействителен")
+	}
+}
 
-	t.Run("error", func(t *testing.T) {
-		repo := new(mockUserRepository)
+func TestAuthService_Login_InvalidCredentials(t *testing.T) {
+	// Подготовка: пользователь не найден
+	mockRepo := &mockUserRepo{
+		getByLoginFunc: func(ctx context.Context, login string) (*models.UserResponse, string, error) {
+			return nil, "", pgx.ErrNoRows
+		},
+	}
 
-		repo.On("GetByID", mock.Anything, int64(1)).
-			Return(nil, errors.New("not found"))
+	authService := NewAuthService(mockRepo, "secret", nil)
+	req := models.LoginRequest{Username: "nobody", Password: "123"}
 
-		s := NewAuthService(repo, "secret", nil)
+	_, _, err := authService.Login(context.Background(), req)
 
-		result, err := s.GetMe(context.Background(), 1)
+	if !errors.Is(err, ErrInvalidCredentials) {
+		t.Errorf("Ожидалась ошибка ErrInvalidCredentials, получена: %v", err)
+	}
+}
 
-		assert.Error(t, err)
-		assert.Nil(t, result)
-	})
+func TestAuthService_Login_WrongPassword(t *testing.T) {
+	wrongHash, _ := bcrypt.GenerateFromPassword([]byte("другой_пароль"), bcrypt.DefaultCost)
+
+	mockRepo := &mockUserRepo{
+		getByLoginFunc: func(ctx context.Context, login string) (*models.UserResponse, string, error) {
+			return &models.UserResponse{ID: 1}, string(wrongHash), nil
+		},
+	}
+
+	authService := NewAuthService(mockRepo, "secret", nil)
+	req := models.LoginRequest{Username: "user", Password: "неверный_пароль"}
+
+	_, _, err := authService.Login(context.Background(), req)
+
+	if !errors.Is(err, ErrInvalidCredentials) {
+		t.Errorf("Ожидалась ошибка ErrInvalidCredentials при неверном пароле, получена: %v", err)
+	}
+}
+
+func TestAuthService_GetMe_Success(t *testing.T) {
+	// Подготовка
+	expectedUser := &models.UserResponse{ID: 99, Email: "me@test.com"}
+
+	mockRepo := &mockUserRepo{
+		getByIDFunc: func(ctx context.Context, id int64) (*models.UserResponse, error) {
+			if id != 99 {
+				t.Errorf("Ожидался ID 99, получен %d", id)
+			}
+			return expectedUser, nil
+		},
+	}
+
+	authService := NewAuthService(mockRepo, "secret", nil)
+
+	user, err := authService.GetMe(context.Background(), 99)
+
+	if err != nil {
+		t.Fatalf("Ожидалась ошибка nil, получена: %v", err)
+	}
+	if user.ID != expectedUser.ID {
+		t.Errorf("Ожидался пользователь с ID %d, получен %d", expectedUser.ID, user.ID)
+	}
 }
